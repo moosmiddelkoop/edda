@@ -394,7 +394,7 @@ Below is a template for reporting the exercises from the assignments.
 \end{Shaded}
 
 \begin{verbatim}
-##  [1] "B" "A" "A" "B" "B" "A" "A" "B" "B" "A"
+##  [1] "B" "A" "A" "B" "B" "B" "A" "A" "A" "B"
 \end{verbatim}
 
 \begin{Shaded}
@@ -411,7 +411,7 @@ block.
 \NormalTok{x}\OtherTok{=}\FunctionTok{rep}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"A"}\NormalTok{,}\StringTok{"B"}\NormalTok{),}\AttributeTok{each=}\DecValTok{5}\NormalTok{); x}
 \DocumentationTok{\#\#  [1] "A" "A" "A" "A" "A" "B" "B" "B" "B" "B"}
 \FunctionTok{sample}\NormalTok{(x)}
-\DocumentationTok{\#\#  [1] "A" "B" "A" "B" "B" "A" "A" "B" "B" "A"}
+\DocumentationTok{\#\#  [1] "B" "A" "B" "A" "A" "B" "A" "B" "A" "B"}
 \NormalTok{x}\OtherTok{=}\FunctionTok{rnorm}\NormalTok{(}\DecValTok{100}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -432,13 +432,13 @@ block.
 ##  One Sample t-test
 ## 
 ## data:  x
-## t = 1.4762, df = 99, p-value = 0.1431
+## t = 3.2459, df = 99, p-value = 0.001598
 ## alternative hypothesis: true mean is not equal to 0
 ## 95 percent confidence interval:
-##  -0.05235667  0.35665932
+##  0.1427092 0.5915867
 ## sample estimates:
 ## mean of x 
-## 0.1521513
+##  0.367148
 \end{verbatim}
 
 \textbf{c)} We often do not need to report the whole output of
@@ -454,7 +454,7 @@ values of t-statistics and the p-pavue.
 \end{Highlighting}
 \end{Shaded}
 
-The value of t-statistics in the above evaluation is -4.03 and the
-p-value is \ensuremath{10^{-4}}.
+The value of t-statistics in the above evaluation is -2.96 and the
+p-value is 0.0039.
 
 \end{document}
