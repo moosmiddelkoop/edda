@@ -1,0 +1,178 @@
+---
+title: "Assignment 1"
+author: "Gijs Smeets, group 35"
+date: "February 2023"
+output:
+  html_document:
+    df_print: paged
+fontsize: 11pt
+highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise 1
+
+### A
+
+WE LOAD IN DATA.. ETC
+```{r}
+data = read.table('birthweight.txt',header=TRUE)
+x = data$birthweight
+shapiro.test(x)
+```
+
+TALK ABOUT SHAPIRO AND QQ
+```{r,echo=FALSE,figheight=1.5}
+qqnorm(x); qqline(x)
+```
+
+NOW WE CONSTRUCT CI FOR MU, assuming normality
+```{r}
+mean = mean(x)
+sd = sd(x)
+n = length(x)
+
+ci = c((mean - qnorm(0.98)*(sd/sqrt(n))), (mean + qnorm(0.98)*(sd/sqrt(n))))
+```
+THIS RESULTS IN confidence interval of [`r round(ci,3)`]
+
+Margin of error is 50. Following theory, we have to show that (mathematical: show that `qnorm(0.98)*(sd/sqrt(n)) =< 50)`)
+n must be larger or equal to `min_n`
+```{r}
+min_n = ((qnorm(0.98)^2)*(sd^2))/(50^2)
+```
+This results in `r round(min_n,3)`.
+
+96% bootstrap ci
+```{r}
+B = 1000
+Tstar = numeric(B);
+for (i in 1:B){
+  Xstar = sample(x,replace=TRUE)
+  Tstar[i] = mean(Xstar)
+}
+Tstar20 = quantile(Tstar,0.020)[[1]]
+Tstar980 = quantile(Tstar,0.975)[[1]]
+bootstrapci = c(2*mean-Tstar980,2*mean-Tstar20)
+```
+
+comparison ci vs bootstrap ci
+```{r}
+lenci = ci[2]-ci[1]
+lenbsci = bootstrapci[2]-bootstrapci[1]
+lenbsci<lenci 
+```
+
+### B
+
+```{r}
+t.test(x,mu=2800,alt="g")
+```
+As p-value is ... , reject null hypothesis.
+Explain CI in t test results
+
+Proposed sign test: T = #(x>2800)
+```{r}
+nT = length(x[x>2800]); 
+pttest = t.test(x,mu=2800,alt="g")[[3]]
+psign = binom.test(nT,n,p=0.5)[[3]]
+```
+
+Compare -> should we simulate? or is one enough
+```{r}
+pttest<psign
+```
+Talk about diff of tests, which is better etc. (comparison of p-values)
+
+### C
+Compute powers -> look at this
+
+### D
+```{r}
+q = length(x[x<2600])/n - 0.25
+pr = length(x[x<2600])/n + q
+```
+
+```{r}
+ci_p = c(0.25,pr)
+```
+Confidence interval is [`r round(ci_p,3)`]
+
+
+Now compute confidence level, by (math): q = z_(a/2) * sd/sqrt(n), so z_(a/2) = q * sqrt(n) / sd
+```{r}
+z = q * (sqrt(n) / sd)
+pnorm(z)
+```
+
+Is this correct? -> alpha. Look at this
+
+
+### E
+
+
+## Exercise 2
+
+### A
+```{r}
+data = read.table('cholesterol.txt',header=TRUE); data
+before = data$Before
+after = data$After8weeks
+summary(data)
+shapiro.test(before)
+shapiro.test(after)
+```
+```{r,echo=FALSE}
+reg = lm(after ~ before)
+plot(before,after, pch=16, col="blue")
+abline(reg)
+```
+summary(reg) adj R^2 = 0.98 explained, correlated positively, but less than 1 so cholesterol level gets less. 
+
+But easier to see, if we remove before bias and only look at first differences:
+```{r,echo=FALSE}
+diff = after - before
+reg2 = lm(diff ~ before)
+plot(before,diff, pch=16, col="red")
+abline(reg2)
+summary(reg2)
+```
+Notice that decrease in cholesterol level is higher for people who have higher cholesterol level before the experiment
+
+### B
+
+### C
+
+### D
+
+### E
+
+
+## Exercise 3
+
+### A
+
+### B
+
+### C
+
+### D
+
+### E
+
+
+## Exercise 4
+
+### A
+
+### B
+
+### C
+
+### D
+
+### E
+

@@ -25,15 +25,80 @@ summary(reg2)
 ## EXERCISE 2B
 
 # -> lec 2,3
+#samples are dependent
+#data is paired
+
+#use perm. test
+meansamples = function(x,y) {mean(x-y)}
+B=1000; Tstar = numeric(B)
+for (i in 1:B){
+  dietstar = t(apply(cbind(before,after),1,sample))
+  Tstar[i] = meansamples(dietstar[,1],dietstar[,2])
+}
+myt = meansamples(before,after)
+hist(Tstar)
+
+pl = sum(Tstar<myt)/B
+pr = sum(Tstar>myt)/B
+p = 2*min(pl,pr)
+p
+
+#pearson corr. test
+cor.test(before,after)
+qqnorm(before,main="Q-Q Plot Before")
+qqnorm(after,main="Q-Q Plot After")
+
+#seems like normal, but if not: use spearman
+cor.test(before,after,method="spearman")
 
 
 ## EXERCISE 2C
-after
-(sqrt(length(after)) * (after - mean(after))) / sd(after)
 
-unif_exp = function(a,b){
-  return (b+a)/2
-}
+# function that computes variance of uniformly distr. variable
 unif_var = function(a,b){
-  return (1/12)*((b-a)^2)
+  return ((1/12)*((b-a)^2))
 }
+
+# E(X) = (a+b)/2 = mean(after)
+# So point estimate of b is 2*E(X)-3
+theta_est = 2*mean(after)-3
+
+#build 95%-CI for theta_est
+n = length(after)
+ci_theta = c(theta_est - qnorm(0.975)*(sqrt(unif_var(3,theta_est))/sqrt(n)), theta_est + qnorm(0.975)*(sqrt(unif_var(3,theta_est))/sqrt(n)))
+ci_theta
+
+
+## EXERCISE 2D
+
+#bootstrap test
+t = max(after); t
+
+vP = rep(0,9)
+vT = rep(0,9)
+for (theta in 3:12){
+  B = 1000; tstar=numeric(B)
+  
+  for (i in 1:B){
+    xstar=runif(n,3,theta)
+    tstar[i] = max(xstar)
+  }
+  
+  pl = sum(tstar<t)/B; pr = sum(tstar>t)/B
+  p = 2*min(pl,pr); p
+  
+  vT[theta-2] = theta
+  vP[theta-2] = p
+  
+}
+res = rbind(vT,vP); res
+
+# kolmogorov-smirnov can not be applied, explain.... (totally diff test)
+
+
+## EXERCISE 2E
+#set up bootstrap test for the median?
+t = median(after); t
+
+# or maybe sign test ?
+

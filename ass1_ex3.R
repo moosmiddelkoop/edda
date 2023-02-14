@@ -36,3 +36,7 @@ summary(reg)
 
 #ANOVA
 boxplot(data); stripchart(data)
+df = data[c("weight.lost","diet")]; df
+weightlostaov = lm(weight.lost~diet,data=df)
+anova(weightlostaov)
+confint(weightlostaov)
