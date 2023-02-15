@@ -85,3 +85,13 @@ anova(height_diet)
 # plot residuals of linear model
 par(mfrow=c(1,2)); qqnorm(residuals(height_diet))
 plot(fitted(height_diet),residuals(height_diet))
+
+
+## EX 3E
+
+# we first need to compute what the avg person looks like
+av_height = mean(height); av_h
+av_age = mean(age); av_age
+av_weight = mean(pre); av_weight
+
+# what is the best model? second? because height is taken into account
