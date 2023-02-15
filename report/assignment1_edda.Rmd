@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1"
-author: "Gijs Smeets, group 35"
+author: "Gijs Smeets, Daan Wijnhorst, Moos Middelkoop, group 35"
 date: "February 2023"
 output:
   html_document:
@@ -13,7 +13,7 @@ highlight: tango
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Exercise 1
+## Exercise 1 beep boop
 
 ### A
 

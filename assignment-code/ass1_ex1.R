@@ -1,4 +1,4 @@
-data = read.table('birthweight.txt',header=TRUE)
+data = read.table('data/birthweight.txt',header=TRUE)
 x = data$birthweight
 
 # significance level alpha

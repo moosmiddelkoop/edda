@@ -1,4 +1,4 @@
-data = read.table('diet.txt',header=TRUE)
+data = read.table('data/diet.txt',header=TRUE)
 
 weight.lost = data$weight6weeks - data$preweight
 data = cbind(data,weight.lost)
@@ -34,9 +34,38 @@ summary(reg)
 
 
 
-#ANOVA
+## ANOVA (Ex. 3B)
 boxplot(data); stripchart(data)
+data$diet = as.factor(data$diet)
 df = data[c("weight.lost","diet")]; df
+is.factor(df$diet); is.numeric(df$diet)
+
+# sum parametrization
+contrasts(df$diet)=contr.sum
+
 weightlostaov = lm(weight.lost~diet,data=df)
 anova(weightlostaov)
+summary(weightlostaov)
 confint(weightlostaov)
+
+# plot residuals to see if normality assumption is not violated -> good!
+par(mfrow=c(1,2)); qqnorm(residuals(weightlostaov))
+plot(fitted(weightlostaov),residuals(weightlostaov))
+
+
+#TWO WAY ANOVA (ex. 3C)
+data$gender = as.factor(data$gender)
+df2 = data[c("weight.lost","diet","gender")]; df2
+
+# sum parametr.?
+contrasts(df2$diet)=contr.sum; contrasts(df2$gender)=contr.sum
+
+twoway = lm(weight.lost~diet*gender,data=df2)
+anova(twoway)
+summary(twoway)
+confint(twoway)
+
+# plot residuals to see if normality assumption is not violated -> good!
+par(mfrow=c(1,2)); qqnorm(residuals(twoway))
+plot(fitted(twoway),residuals(twoway))
+
