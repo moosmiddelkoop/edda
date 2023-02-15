@@ -69,3 +69,19 @@ confint(twoway)
 par(mfrow=c(1,2)); qqnorm(residuals(twoway))
 plot(fitted(twoway),residuals(twoway))
 
+
+## EX 3D
+head(data)
+height = data$height
+
+# show interaction plots to assume a priori that all interactions are 0
+par(mfrow=c(1,2))
+interaction.plot(height,diet,weight.lost)
+interaction.plot(diet,height,weight.lost)
+
+height_diet = lm(weight.lost ~ height+diet,data=data)
+anova(height_diet)
+
+# plot residuals of linear model
+par(mfrow=c(1,2)); qqnorm(residuals(height_diet))
+plot(fitted(height_diet),residuals(height_diet))
