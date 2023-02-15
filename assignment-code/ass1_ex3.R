@@ -1,4 +1,4 @@
-data = read.table('diet.txt',header=TRUE)
+data = read.table('data/diet.txt',header=TRUE)
 
 weight.lost = data$weight6weeks - data$preweight
 data = cbind(data,weight.lost)

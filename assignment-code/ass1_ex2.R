@@ -1,4 +1,4 @@
-data = read.table('cholesterol.txt',header=TRUE); data
+data = read.table('data/cholesterol.txt',header=TRUE); data
 before = data$Before
 after = data$After8weeks
 
