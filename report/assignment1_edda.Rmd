@@ -13,23 +13,32 @@ highlight: tango
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Exercise 1 beep boop
+## Exercise 1. Birthweights
 
-### A
-
-WE LOAD IN DATA.. ETC
+LOADING IN DATA
 ```{r}
 data = read.table('../data/birthweight.txt',header=TRUE)
 x = data$birthweight
+```
+
+
+#### A
+##### Check normality of the data. Assuming normality (irrespective of your conclusion about normality), construct a bounded 96%-CI for mu. Evaluate the sample size needed to provide that the length of the 96%-CI is at most 100. Compute a bootstrap 96%-CI for mu and compare it to the above CI.
+
+To check for normality we use a Shapiro-Wilk test. The null-hypothesis for this test is that the data is normally distributed. While it is not possible to infer results from a failed rejection of the null hypothesis (Schmidt and Vorberg, 2006), the result of this test can tell us if there is no significant non-normality present.
+
+```{r}
 shapiro.test(x)
 ```
 
-TALK ABOUT SHAPIRO AND QQ
+Additionally, we create a qqplot to plot the quantiles of our data against those of a normal distribution, to get a visual impression of the normality of the data.
+
 ```{r,echo=FALSE,figheight=1.5}
 qqnorm(x); qqline(x)
 ```
 
-NOW WE CONSTRUCT CI FOR MU, assuming normality
+The linearity of this plot and a `p=0.8895` gives us a strong impression that our data is normally distributed. Now we can go on to construct the 95% confidence interval (CI) for mu, assuming normality.
+
 ```{r}
 mean = mean(x)
 sd = sd(x)
@@ -37,9 +46,10 @@ n = length(x)
 
 ci = c((mean - qnorm(0.98)*(sd/sqrt(n))), (mean + qnorm(0.98)*(sd/sqrt(n))))
 ```
-THIS RESULTS IN confidence interval of [`r round(ci,3)`]
 
-Margin of error is 50. Following theory, we have to show that (mathematical: show that `qnorm(0.98)*(sd/sqrt(n)) =< 50)`)
+This results in a confidence interval of [`r round(ci,3)`]
+
+The margin of error is 50. Following theory, we have to show that (mathematical: show that `qnorm(0.98)*(sd/sqrt(n)) =< 50)`)
 n must be larger or equal to `min_n`
 ```{r}
 min_n = ((qnorm(0.98)^2)*(sd^2))/(50^2)
