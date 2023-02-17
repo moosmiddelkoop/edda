@@ -97,8 +97,8 @@ res = rbind(vT,vP); res
 
 
 ## EXERCISE 2E
-#set up bootstrap test for the median?
-t = median(after); t
+# sign test for the median with binomial distr.
+s = sum(after<6)
+binom.test(s,length(after),p=0.5,alt="less")
 
-# or maybe sign test ?
 

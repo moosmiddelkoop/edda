@@ -81,4 +81,3 @@ female = 28 + 65
 
 prop.test(c(34,28),c(male,female))
 
-# -> idk
