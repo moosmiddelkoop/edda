@@ -2,6 +2,7 @@ data = read.table('data/cholesterol.txt',header=TRUE); data
 before = data$Before
 after = data$After8weeks
 
+
 ## EXERCISE 2A
 summary(data)
 shapiro.test(before)
@@ -98,7 +99,9 @@ res = rbind(vT,vP); res
 
 ## EXERCISE 2E
 # sign test for the median with binomial distr.
-s = sum(after<6)
-binom.test(s,length(after),p=0.5,alt="less")
+s = sum(after<6); s
+binom.test(s,n,p=0.5,alt="g") 
 
-
+# fraction of cholesterol levels lower than 4.5 in after is at most 0.25
+s2 = (sum(after<4.5))
+binom.test(s2,n,p=0.25,alt="l")
