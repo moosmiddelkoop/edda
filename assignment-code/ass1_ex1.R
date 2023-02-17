@@ -15,7 +15,7 @@ sd = sd(x); sd
 n = length(x); n
 
 # 96% bounded ci 
-ci = c((mean - qnorm(0.98)*(sd/sqrt(n))), (mean + qnorm(0.98)*(sd/sqrt(n)))); ci
+ci = c((mean - qt(0.98,n-1)*(sd/sqrt(n))), (mean + qt(0.98,n-1)*(sd/sqrt(n)))); ci
 
 # length of sample size, s.t. E = 50
 # show that qnorm(0.98)*(sd/sqrt(n)) =< 50
@@ -60,10 +60,15 @@ pttest<psign
 
 ##### EXERCISE 1D
 q = length(x[x<2600])/n - 0.25
-pr = length(x[x<2600])/n + q
+
+
+
+qnew = pnorm(2600,mean=mean,sd=sd); qnew
+
+pr = length(x[x<2600])/n + qnew
 
 # confidence interval
-ci_p = c(0.25,pr)
+ci_p = c(0.25,pr); ci_p
 
 # confidence level
 
