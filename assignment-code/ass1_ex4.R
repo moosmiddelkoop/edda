@@ -62,6 +62,12 @@ anova(twoway)
 summary(twoway)
 confint(twoway)
 
-# friedman test?
+# was it sensible to also include 'block' as factor in this model? --> comment
+# friedman test? --> comment
+
+
+## EXERCISE 4D
+
+
 
 
