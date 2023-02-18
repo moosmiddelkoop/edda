@@ -59,23 +59,15 @@ pttest<psign
 
 
 ##### EXERCISE 1D
-q = length(x[x<2600])/n - 0.25
 
+# estimate of p
+p = length(x[x<2600])/n; p
+B = (sqrt((p*(1-p))/n)); B
+z = (p - 0.25) / B; z 
+ci_p = c(0.25,(p+B*z)); ci_p
 
-
-qnew = pnorm(2600,mean=mean,sd=sd); qnew
-
-pr = length(x[x<2600])/n + qnew
-
-# confidence interval
-ci_p = c(0.25,pr); ci_p
-
-# confidence level
-
-# q = z_(a/2) * sd/sqrt(n), so z_(a/2) = q * sqrt(n) / sd
-z = q * (sqrt(n) / sd); z
-# is this correct? -> alpha
-pnorm(z)
+# suggests alpha/2 = 0.01, so alpha = 0.02
+alpha = pnorm(-z)*2; alpha
 
 
 ##### EXERCISE 1E
