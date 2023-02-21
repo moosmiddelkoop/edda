@@ -82,15 +82,24 @@ This shows that the length of the bootstrap CI is smaller, which indicates that 
 #### B
 ##### An expert claims that the mean birthweight is bigger than 2800 gram. Verify this claim by using a relevant t-test
 
-In order to verify this claim, we perform a t-test 
+In order to verify this claim, we perform a t-test
 ```{r}
-t.test(x,mu=2800,alt="g")
-
 t.test(x, mu=2800)
 ```
-As p-value is ... , reject null hypothesis.
-Explain CI in t test results
+The p-value 0.02713 < 0.05, and the mean of the sample is 2913, we can reject the null-hypothesis and conclude that the mean birthweight is statistically significantly bigger than 2800 grams.
 
+This result is already statistically significant. One could also argue that a one-sided t-test can be justified. because it's an experts claim that babies will weigh more than 2800 grams.
+This would make `H0 = mu > 2800`. 
+
+```{r}
+t.test(x, mu=2800, alt='g')
+```
+
+A one-sided test is less strict than a two-tailed test and as expected, the p value is twice as low for the one-sided test as for the two-tailed test. 
+
+##### Explain the meaning of the CI in the R-output for this test
+
+##### Propose and perform a suitable sign tests for this problem.
 Proposed sign test: T = #(x>2800)
 ```{r}
 nT = length(x[x>2800]); 
