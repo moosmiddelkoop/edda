@@ -67,7 +67,8 @@ z = (p - 0.25) / B; z
 ci_p = c(0.25,(p+B*z)); ci_p
 
 # suggests alpha/2 = 0.01, so alpha = 0.02
-alpha = pnorm(-z)*2; alpha
+alpha = (pnorm(-z))*2; 1-alpha
+
 
 
 ##### EXERCISE 1E

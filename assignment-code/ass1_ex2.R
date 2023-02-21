@@ -25,10 +25,6 @@ summary(reg2)
 
 ## EXERCISE 2B
 
-# -> lec 2,3
-#samples are dependent
-#data is paired
-
 #use perm. test
 meansamples = function(x,y) {mean(x-y)}
 B=1000; Tstar = numeric(B)
