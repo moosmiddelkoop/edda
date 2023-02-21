@@ -40,8 +40,6 @@ data$diet = as.factor(data$diet)
 df = data[c("weight.lost","diet")]; df
 is.factor(df$diet); is.numeric(df$diet)
 
-# sum parametrization
-contrasts(df$diet)=contr.sum
 
 weightlostaov = lm(weight.lost~diet,data=df)
 anova(weightlostaov)
@@ -52,16 +50,25 @@ confint(weightlostaov)
 par(mfrow=c(1,2)); qqnorm(residuals(weightlostaov))
 plot(fitted(weightlostaov),residuals(weightlostaov))
 
+# can kruskal-wallis be used for this? -> can be used! However, we have seen that residuals are normally distributed, so usage of kruskal-wallis test is not needed.
+# compare kruskal-wallis test results with those of one-way anova
+kruskal.test(weight.lost,diet)
+
 
 #TWO WAY ANOVA (ex. 3C)
 data$gender = as.factor(data$gender)
 df2 = data[c("weight.lost","diet","gender")]; df2
 
-# sum parametr.?
-contrasts(df2$diet)=contr.sum; contrasts(df2$gender)=contr.sum
+# use normal parametrization
 
+# inspect interaction (diet * gender)
 twoway = lm(weight.lost~diet*gender,data=df2)
+
+# interaction variable is significant! -> Pr(>F) = 0.048, we use alpha = 0.05.
+# hence no need to inspect further effects of main factor parameters (?) -> check slides lec. 5
 anova(twoway)
+
+# summary (parameter values) and confidence interval
 summary(twoway)
 confint(twoway)
 
@@ -73,25 +80,41 @@ plot(fitted(twoway),residuals(twoway))
 ## EX 3D
 head(data)
 height = data$height
+diet= data$diet
 
 # show interaction plots to assume a priori that all interactions are 0
 par(mfrow=c(1,2))
 interaction.plot(height,diet,weight.lost)
 interaction.plot(diet,height,weight.lost)
 
-height_diet = lm(weight.lost ~ height+diet,data=data)
+# two way anova, also inspecting interaction
+height_diet = lm(weight.lost ~ height*diet,data=data)
+
+# two way anova results in not significant interaction parameter 
 anova(height_diet)
 
-# plot residuals of linear model
-par(mfrow=c(1,2)); qqnorm(residuals(height_diet))
-plot(fitted(height_diet),residuals(height_diet))
+# -> so we have to inspect only main factor parameters
+height_diet2 = lm(weight.lost ~ height+diet,data=data)
+
+# this results in significant diet factor parameter (Pr(>F) = 0.0056)
+anova(height_diet2)
+
+# now we check if the effect of height is the same for all 3 types of diet
+# seems like diet 1 and 2 have the same effect, only diet 3 is significantly different from diet 1 (Pr(>F) = 0.00879)
+summary(height_diet2)
+
+# plot residuals of linear model -> looks good (normal). QQ plot looks good and fitted vs residuals looks random.
+par(mfrow=c(1,2)); qqnorm(residuals(height_diet2))
+plot(fitted(height_diet2),residuals(height_diet2))
 
 
 ## EX 3E
+# what is the best model? second? because height is taken into account, but height does not seem to have a sign. effect!
+# so why compute a 2-way anova when height is only interfering?
+# we prefer the first model, only taking the sign. effects into account -> namely diet (also P values are lower: 0.003229 < 0.005612)
 
-# we first need to compute what the avg person looks like
-av_height = mean(height); av_h
-av_age = mean(age); av_age
-av_weight = mean(pre); av_weight
+# because we already got rid of first differences (resulting in variable 'weight.lost'), we can interpret the ANOVA estimated parameters as without intercept
+summary(weightlostaov)
+# hence for first diet it is -3.3, second 0.27 (not sign.), third -1.8481.
 
-# what is the best model? second? because height is taken into account
+
