@@ -40,8 +40,6 @@ data$diet = as.factor(data$diet)
 df = data[c("weight.lost","diet")]; df
 is.factor(df$diet); is.numeric(df$diet)
 
-# sum parametrization
-contrasts(df$diet)=contr.sum
 
 weightlostaov = lm(weight.lost~diet,data=df)
 anova(weightlostaov)
@@ -57,11 +55,16 @@ plot(fitted(weightlostaov),residuals(weightlostaov))
 data$gender = as.factor(data$gender)
 df2 = data[c("weight.lost","diet","gender")]; df2
 
-# sum parametr.?
-contrasts(df2$diet)=contr.sum; contrasts(df2$gender)=contr.sum
+# use normal parametrization
 
+# inspect interaction (diet * gender)
 twoway = lm(weight.lost~diet*gender,data=df2)
+
+# interaction variable is significant! -> Pr(>F) = 0.048, we use alpha = 0.05.
+# hence no need to inspect further effects of main factor parameters (?) -> check slides lec. 5
 anova(twoway)
+
+# summary (parameter values) and confidence interval
 summary(twoway)
 confint(twoway)
 
@@ -73,16 +76,31 @@ plot(fitted(twoway),residuals(twoway))
 ## EX 3D
 head(data)
 height = data$height
+diet= data$diet
 
 # show interaction plots to assume a priori that all interactions are 0
 par(mfrow=c(1,2))
 interaction.plot(height,diet,weight.lost)
 interaction.plot(diet,height,weight.lost)
 
-height_diet = lm(weight.lost ~ height+diet,data=data)
+# two way anova, also inspecting interaction
+height_diet = lm(weight.lost ~ height*diet,data=data)
+
+# two way anova results in not significant interaction parameter 
 anova(height_diet)
 
-# plot residuals of linear model
+# -> so we have to inspect only main factor parameters
+height_diet2 = lm(weight.lost ~ height+diet,data=data)
+
+# this results in significant diet factor parameter (Pr(>F) = 0.0056)
+anova(height_diet2)
+
+# now we check if the effect of height is the same for all 3 types of diet
+# seems like diet 1 and 2 have the same effect, only diet 3 is significantly different from diet 1 (Pr(>F) = 0.00879)
+summary(height_diet2)
+
+
+# plot residuals of linear model -> looks good (normal). QQ plot looks good and fitted vs residuals looks random.
 par(mfrow=c(1,2)); qqnorm(residuals(height_diet))
 plot(fitted(height_diet),residuals(height_diet))
 
