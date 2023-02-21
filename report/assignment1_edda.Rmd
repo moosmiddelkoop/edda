@@ -11,6 +11,7 @@ highlight: tango
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(glue)
 ```
 
 ## Exercise 1. Birthweights
@@ -25,7 +26,7 @@ x = data$birthweight
 #### A
 ##### Check normality of the data. Assuming normality (irrespective of your conclusion about normality), construct a bounded 96%-CI for mu. Evaluate the sample size needed to provide that the length of the 96%-CI is at most 100. Compute a bootstrap 96%-CI for mu and compare it to the above CI.
 
-To check for normality we use a Shapiro-Wilk test. The null-hypothesis for this test is that the data is normally distributed. While it is not possible to infer results from a failed rejection of the null hypothesis (Schmidt and Vorberg, 2006), the result of this test can tell us if there is no significant non-normality present.
+To check for normality we use a Shapiro-Wilk test. The null-hypothesis for this test is that the data is normally distributed. While it is not possible to infer results from a failed rejection of the null hypothesis , the result of this test can tell us if there is no significant non-normality present.
 
 ```{r}
 shapiro.test(x)
@@ -49,14 +50,14 @@ ci = c((mean - qnorm(0.98)*(sd/sqrt(n))), (mean + qnorm(0.98)*(sd/sqrt(n))))
 
 This results in a confidence interval of [`r round(ci,3)`]
 
-The margin of error is 50. Following theory, we have to show that (mathematical: show that `qnorm(0.98)*(sd/sqrt(n)) =< 50)`)
-n must be larger or equal to `min_n`
+The margin of error is 50. Following theory, we have to show that `qnorm(0.98)*(sd/sqrt(n)) =< 50` to compute the minimal sample size needed to provide that the length of the 96%-CI is at most 100.
 ```{r}
 min_n = ((qnorm(0.98)^2)*(sd^2))/(50^2)
 ```
-This results in `r round(min_n,3)`.
+This results in `min_n` being `r round(min_n,3)`.
 
-96% bootstrap ci
+
+##### bootstrap 96%-CI 
 ```{r}
 B = 1000
 Tstar = numeric(B);
@@ -69,17 +70,23 @@ Tstar980 = quantile(Tstar,0.975)[[1]]
 bootstrapci = c(2*mean-Tstar980,2*mean-Tstar20)
 ```
 
-comparison ci vs bootstrap ci
+Next we compare the length of the bootstrap 96% CI to the bounded 96% CI
 ```{r}
 lenci = ci[2]-ci[1]
 lenbsci = bootstrapci[2]-bootstrapci[1]
-lenbsci<lenci 
+glue('CI length: {lenci},    Bootstrap CI length: {lenbsci}');
 ```
+This shows that the length of the bootstrap CI is smaller, which indicates that it is more accurate.
 
-### B
 
+#### B
+##### An expert claims that the mean birthweight is bigger than 2800 gram. Verify this claim by using a relevant t-test
+
+In order to verify this claim, we perform a t-test 
 ```{r}
 t.test(x,mu=2800,alt="g")
+
+t.test(x, mu=2800)
 ```
 As p-value is ... , reject null hypothesis.
 Explain CI in t test results
