@@ -59,8 +59,15 @@ df = npk[c("yield","block","N")]; df
 # two way anova
 twoway = lm(yield~block*N,data=df)
 anova(twoway)
-summary(twoway)
-confint(twoway)
+
+# not sign. interaction parameter -> compute anova on additive model
+twoway2  = lm(yield~block+N,data=df)
+
+# we obtain sign. values for block and N.
+anova(twoway2)
+
+summary(twoway2)
+confint(twoway2)
 
 # was it sensible to also include 'block' as factor in this model? --> comment
 # friedman test? --> comment
