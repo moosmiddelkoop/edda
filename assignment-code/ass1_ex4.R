@@ -58,23 +58,38 @@ barplot(test,beside=T)
 npk$block = as.factor(npk$block)
 npk$N = as.factor(npk$N)
 
-df = npk[c("yield","block","N")]; df
+df = npk[c("yield","block","N")]
 
 # two way anova
 twoway = lm(yield~block*N,data=df)
 anova(twoway)
 
-# not sign. interaction parameter -> compute anova on additive model
+
+# not sign. interaction parameter, also interaction plots as evidence for gamma_ij = 0 (parallel).
+interaction.plot(npk$N,npk$block,npk$yield); interaction.plot(npk$block,npk$N,npk$yield)
+
+# -> compute anova on additive model
 twoway2  = lm(yield~block+N,data=df)
 
 # we obtain sign. values for block and N.
 anova(twoway2)
-
 summary(twoway2)
 confint(twoway2)
 
+# seems normally distributed residuals
+par(mfrow=c(1,2)); qqnorm(residuals(twoway2))
+plot(fitted(twoway2),residuals(twoway2))
+
+
 # was it sensible to also include 'block' as factor in this model? --> comment
-# friedman test? --> comment
+# yes, because significant (?)
+# or no, because it changes nothing (except for location?) -> as N(PK) is distr. differently across every block and 
+# there is no way of describing the difference of how this distr. is affecting the yield
+
+
+# no friedman test! we need 24 blocks for this, to differentiate. see slide 37 of lec. 5 for explanation of this
+friedman.test(npk$yield,npk$N,npk$block)
+
 
 
 ## EXERCISE 4D
