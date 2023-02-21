@@ -50,6 +50,10 @@ confint(weightlostaov)
 par(mfrow=c(1,2)); qqnorm(residuals(weightlostaov))
 plot(fitted(weightlostaov),residuals(weightlostaov))
 
+# can kruskal-wallis be used for this? -> can be used! However, we have seen that residuals are normally distributed, so usage of kruskal-wallis test is not needed.
+# compare kruskal-wallis test results with those of one-way anova
+kruskal.test(weight.lost,diet)
+
 
 #TWO WAY ANOVA (ex. 3C)
 data$gender = as.factor(data$gender)
@@ -99,17 +103,18 @@ anova(height_diet2)
 # seems like diet 1 and 2 have the same effect, only diet 3 is significantly different from diet 1 (Pr(>F) = 0.00879)
 summary(height_diet2)
 
-
 # plot residuals of linear model -> looks good (normal). QQ plot looks good and fitted vs residuals looks random.
-par(mfrow=c(1,2)); qqnorm(residuals(height_diet))
-plot(fitted(height_diet),residuals(height_diet))
+par(mfrow=c(1,2)); qqnorm(residuals(height_diet2))
+plot(fitted(height_diet2),residuals(height_diet2))
 
 
 ## EX 3E
 
 # we first need to compute what the avg person looks like
-av_height = mean(height); av_h
+av_height = mean(height); av_height
 av_age = mean(age); av_age
 av_weight = mean(pre); av_weight
 
-# what is the best model? second? because height is taken into account
+# what is the best model? second? because height is taken into account, but height does not seem to have a sign. effect!
+# so why compute a 2-way anova when height is only interfering?
+# we prefer the first model, only taking the sign. effects into account -> namely diet
