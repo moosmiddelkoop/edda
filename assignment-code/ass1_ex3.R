@@ -109,12 +109,12 @@ plot(fitted(height_diet2),residuals(height_diet2))
 
 
 ## EX 3E
-
-# we first need to compute what the avg person looks like
-av_height = mean(height); av_height
-av_age = mean(age); av_age
-av_weight = mean(pre); av_weight
-
 # what is the best model? second? because height is taken into account, but height does not seem to have a sign. effect!
 # so why compute a 2-way anova when height is only interfering?
-# we prefer the first model, only taking the sign. effects into account -> namely diet
+# we prefer the first model, only taking the sign. effects into account -> namely diet (also P values are lower: 0.003229 < 0.005612)
+
+# because we already got rid of first differences (resulting in variable 'weight.lost'), we can interpret the ANOVA estimated parameters as without intercept
+summary(weightlostaov)
+# hence for first diet it is -3.3, second 0.27 (not sign.), third -1.8481.
+
+
