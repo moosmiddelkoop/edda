@@ -91,11 +91,16 @@ friedman.test(npk$yield,npk$N,npk$block)
 
 ## EXERCISE 4D
 npk
-pairwise_N = lm(yield ~ N*block + P + K)
-pairwise_P = lm(yield ~ P*block + N + K)
-pairwise_K = lm(yield ~ K*block + P + N)
+pairwise_N = lm(yield ~ N*block + P + K,data=npk)
+pairwise_P = lm(yield ~ P*block + N + K,data=npk)
+pairwise_K = lm(yield ~ K*block + P + N,data=npk)
 
+anova(pairwise_N)
+anova(pairwise_P)
+anova(pairwise_K)
 
+additive = lm(yield ~ N+P+K+block, data=npk)
+anova(additive)
 
 # make 3 models -> two way anova
 # lm(yield ~ N*block + P + K), etc...
@@ -105,7 +110,12 @@ pairwise_K = lm(yield ~ K*block + P + N)
 ### EXERCISE 4E
 
 library(lme4)
-lmer(yield+N+P+K+(1|block),data=...,REML=FALSE)
-# do this also without N and check the anova for both mer and mer2.
+mer1 = lmer(yield ~ N+P+K+(1|block),data=npk,REML=FALSE)
+mer2 = lmer(yield ~ P+K+(1|block),data=npk,REML=FALSE)
+anova(mer1,mer2)
+
+# we see that anova of two models results in sign. p value. s.t. N has a significant impact on the yield.
+# compare to 4C!
+
 
 
