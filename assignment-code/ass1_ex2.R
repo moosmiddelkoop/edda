@@ -8,8 +8,11 @@ summary(data)
 shapiro.test(before)
 shapiro.test(after)
 
+par(mfrow = c(2,2))
+hist(before); hist(after)
+boxplot(before); boxplot(after)
 
-
+par(mfrow=c(1,1))
 reg = lm(after ~ before)
 plot(before,after, pch=16, col="blue")
 abline(reg)
@@ -23,7 +26,22 @@ abline(reg2)
 summary(reg2)
 # notice that decrease in cholesterol level is higher for people who have higher cholesterol level before the experiment
 
+# check if differences are normally distr.
+shapiro.test(diff)
+hist(diff)
+
 ## EXERCISE 2B
+
+
+# add paired t-test
+# shapiro for normality
+# sign test?
+
+#argue data is normal (reference to 2A) / else make use of shapiro test that differences are normally distr.
+
+
+t.test(before,after,paired=TRUE)
+
 
 #use perm. test
 meansamples = function(x,y) {mean(x-y)}
@@ -55,7 +73,7 @@ cor.test(before,after,method="spearman")
 unif_var = function(a,b){
   return ((1/12)*((b-a)^2))
 }
-
+summary(after)
 # E(X) = (a+b)/2 = mean(after)
 # So point estimate of b is 2*E(X)-3
 theta_est = 2*mean(after)-3

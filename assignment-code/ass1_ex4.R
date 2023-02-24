@@ -27,6 +27,7 @@ for (i in 1:6) {
 # result: randomized soil additives per block
 my.data
 
+
 ##  EXERCISE 4B
 nitr = numeric(6)
 nonitr = numeric(6)
@@ -93,7 +94,22 @@ friedman.test(npk$yield,npk$N,npk$block)
 
 
 ## EXERCISE 4D
+npk
+pairwise_N = lm(yield ~ N*block + P + K)
+pairwise_P = lm(yield ~ P*block + N + K)
+pairwise_K = lm(yield ~ K*block + P + N)
 
 
+
+# make 3 models -> two way anova
+# lm(yield ~ N*block + P + K), etc...
+# favorite model is without pairwise interaction term (so no block), just additive
+
+
+### EXERCISE 4E
+
+library(lme4)
+lmer(yield+N+P+K+(1|block),data=...,REML=FALSE)
+# do this also without N and check the anova for both mer and mer2.
 
 

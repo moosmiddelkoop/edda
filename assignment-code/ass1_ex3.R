@@ -1,6 +1,6 @@
 data = read.table('data/diet.txt',header=TRUE)
 
-weight.lost = data$weight6weeks - data$preweight
+weight.lost = data$preweight - data$weight6weeks
 data = cbind(data,weight.lost)
 
 pre = data$preweight
@@ -8,7 +8,13 @@ post = data$weight6weeks
 age = data$age
 
 # test sign. difference -> check assumptions (normality etc.) otherwise other test is needed
-t.test(pre,post)
+# check diff in diets!!!!!!!  -> paired = TRUE
+t.test(pre,post,paired=TRUE)
+
+# add boxplots of data
+# add boxplots of weight lost
+# add qq plots
+# add shapiro wilk
 
 # plot hist of loss per diet
 for (i in 1:3){
@@ -49,6 +55,7 @@ confint(weightlostaov)
 # plot residuals to see if normality assumption is not violated -> good!
 par(mfrow=c(1,2)); qqnorm(residuals(weightlostaov))
 plot(fitted(weightlostaov),residuals(weightlostaov))
+# show that fitted(weightlostaov) is equal to the mean of the weight lost per diet
 
 # can kruskal-wallis be used for this? -> can be used! However, we have seen that residuals are normally distributed, so usage of kruskal-wallis test is not needed.
 # compare kruskal-wallis test results with those of one-way anova
@@ -76,6 +83,7 @@ confint(twoway)
 par(mfrow=c(1,2)); qqnorm(residuals(twoway))
 plot(fitted(twoway),residuals(twoway))
 
+# interaction plot????
 
 ## EX 3D
 head(data)
@@ -109,6 +117,10 @@ plot(fitted(height_diet2),residuals(height_diet2))
 
 
 ## EX 3E
+
+#### TO DO Stilllllllll
+
+
 # what is the best model? second? because height is taken into account, but height does not seem to have a sign. effect!
 # so why compute a 2-way anova when height is only interfering?
 # we prefer the first model, only taking the sign. effects into account -> namely diet (also P values are lower: 0.003229 < 0.005612)

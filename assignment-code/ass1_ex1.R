@@ -59,19 +59,36 @@ pttest<psign
 
 ##### EXERCISE 1C
 
-# powers 0.056 ?
+# WORDT NOG GEFIXT
 psign_val = numeric(B)
 pttest_val = numeric(B)
-B = 1000
-for (i in 1:B) {
-  x1 = rnorm(n,mean=3000,sd=sd)
-  pttest_val[i]=t.test(x1,mu=2800,alt="g")[[3]]; 
-  psign_val[i]=binom.test(sum(x1>2800),n,p=0.5)[[3]]; 
+
+B = 50
+stepsize = 7
+start = 2500
+end = 3200
+
+seq1 = seq(start,end,length.out=(stepsize)); 
+frac = numeric(stepsize)
+count = 1
+for (mu_1 in seq1){
+  for (i in 1:B) {
+    x1 = rnorm(n,mean=mu_1,sd=sd)
+    pttest_val[i]=t.test(x1,mu=2800,alt="g")[[3]]; 
+    psign_val[i]=binom.test(sum(x1>2800),n,p=0.5)[[3]]; 
+  }
+  fracsign = sum(psign_val<0.05)/B
+  fracttest = sum(pttest_val<0.05)/B
+  print(fracsign)
+  print(fracttest)
+  frac[count] = fracsign/fracttest
+  count + 1
 }
+frac
 
-sum(psign_val<0.05)/B
-sum(pttest_val<0.05)/B
 
+
+# 
 # better performance for ttest than for sign test: 0.993 vs. 0.873. Why is this?
 
 ##### EXERCISE 1D
