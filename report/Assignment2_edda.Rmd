@@ -12,35 +12,81 @@ highlight: tango
 ## Exercise 2
 
 ### A
+
+
 ```{r}
 data = read.table('../data/cholesterol.txt',header=TRUE)
 before = data$Before
 after = data$After8weeks
+```
+To check for normality, we look at the Q-Q plots
+```{r,echo=FALSE, fig.margin = FALSE,fig.width=12,fig.height=6,fig.align="center"}
+par(mfrow=c(1,2))
+qqnorm(before,main="Q-Q Plot Before")
+qqnorm(after,main="Q-Q Plot After")
+```
+Here we see that the sampled data is approximately normal
+```{r}
 summary(data)
 shapiro.test(before)
 shapiro.test(after)
 ```
-As the p-value from the Shapiro-Wilk test is high (0.9675) we do not reject the null-hypothesis and we conclude the data to be normally distributed.
+To complement the visual check, we use the Shapiro-Wilk test. 
+In this test, the H0 is that the data is normal. H1 is that the data is not normal.
+
+As the p-value from the Shapiro-Wilk test is high for both values we do not have enough evidence to reject the null-hypothesis.
+If we combine this result with the visual check we can safely assume the data to be normally distributed.
+
+```{r,echo=FALSE, fig.margin = FALSE,fig.width=8,fig.height=6,fig.align="center"}
+par(mfrow = c(2,2))
+hist(before); hist(after)
+boxplot(before); boxplot(after)
+```
+
 
 ```{r,echo=FALSE, fig.margin = FALSE,fig.width=12,fig.height=6,fig.align="center"}
 par(mfrow=c(1,2))
 reg = lm(after ~ before)
 plot(before,after, pch=16, col="blue")
 abline(reg)
+summary(reg) 
 diff = after - before
 reg2 = lm(diff ~ before)
 plot(before,diff, pch=16, col="red")
 abline(reg2)
 summary(reg2)
 ```
-summary(reg) adj R^2 = 0.98 explained, correlated positively, but less than 1 so cholesterol level gets less. 
-But easier to see, if we remove before bias and only look at first differences (see the right red plot )
-Notice that decrease in cholesterol level is higher for people who have higher cholesterol level before the experiment.
+adj R^2 = 0.98 explained, correlated positively.
+From the plots it becomes clear that people who have higher cholesterol levels in the before data have a higher absolute decrease of cholesterol after the experiment.
+It becomes easier to see if we remove before bias and only look at the differences (see the right red plot)
 
 ### B
 #### Pearson Correlation test
+As we have concluded the data to be normally distributed in A, we can conduct a Paired-Sampled T-test.
+In this test, H0: the mean difference between the values of X and Y are 0 H1: this is not the case, the difference is not 0.
 
-We can indeed devise a permutation test as we can look for a difference between X Y within pairs in the data.
+```{r} 
+#T-test
+t.test(before, after, paired = TRUE)
+```
+As the p-value is below 0.05 we reject H0 and conclude the mean paired differences are not equal to zero.
+
+Another relevant test is testing for correlation.
+
+We use the Pearson correlation test if the data is normally distributed and otherwise the Spearman test.
+
+```{r, fig.margin = FALSE,fig.width=8,fig.height=4,fig.align="center"} 
+#pearson corr. test
+par(mfrow=c(1,2))
+cor.test(before,after)
+```
+Pearson's returns the correlation value of 0.9908885 and Spearman's  p-value = 9.753e-06 herefore we conclude there exists a strong (positive) correlation between the two variables.
+
+Combining the results of the two tests, we conclude that the low fat margarine diet has an effect.
+
+#### Is a permutation test applicable?
+As we are dealing with numerical outcomes, two conditions per experimental unit and we are interested in possible differences between two outcomes per unit, we can devise a permutation test.
+
 ```{r, fig.margin = FALSE,fig.width=6,fig.height=4,fig.align="center"} 
 meansamples = function(x,y) {mean(x-y)}
 B=1000; Tstar = numeric(B)
@@ -57,31 +103,8 @@ pr = sum(Tstar>myt)/B
 p = 2*min(pl,pr)
 p
 ```
-From this permutation test we conclude that there is indeed a significant difference between the before and after 8 weeks data.
+As P = 0 we conclude that there is indeed a significant difference between the before and after data.
 
-As we have seen the data to be normally distributed in A, we can conduct a Paired-Sampled T-test
-
-```{r} 
-#T-test
-t.test(before, after, paired = TRUE)
-```
-As the p-value is below 0.05 we reject H0 and conclude the mean paired differences are not equal to zero.
-
-Another relevant test is testing for correlation.
-
-We use the Pearson correlation test if the data is normally distributed and otherwise the Spearman test. From the QQplot the data looks normal.
-
-```{r, fig.margin = FALSE,fig.width=8,fig.height=4,fig.align="center"} 
-#pearson corr. test
-par(mfrow=c(1,2))
-cor.test(before,after)
-qqnorm(before,main="Q-Q Plot Before")
-qqnorm(after,main="Q-Q Plot After")
-
-#seems like normal, but if not: use spearman
-cor.test(before,after,method="spearman")
-```
-Pearson's returns the correlation value of 0.9908885 and Spearman's  p-value = 9.753e-06 herefore we conclude there exists a strong correlation.
 ### C
 ```{r} 
 # function that computes variance of uniformly distr. variable
@@ -97,8 +120,6 @@ theta_est = 2*mean(after)-3
 n = length(after)
 ci_theta = c(theta_est - qnorm(0.975)*(sqrt(unif_var(3,theta_est))/sqrt(n)), theta_est + qnorm(0.975)*(sqrt(unif_var(3,theta_est))/sqrt(n)))
 ci_theta
-
-
 ```
 ### D
 
@@ -131,3 +152,22 @@ res = rbind(vT,vP); res
 Kolmogorov-Smirnov test can not be applied as 
 
 ### E
+```{r} 
+## EXERCISE 2E
+# sign test for the median with binomial distr.
+s = sum(after<6); s
+binom.test(s,n,p=0.5,alt="g") 
+
+# fraction of cholesterol levels lower than 4.5 in after is at most 0.25
+s2 = (sum(after<4.5))
+binom.test(s2,n,p=0.25,alt="l")
+```
+
+## EXERCISE 2E
+# sign test for the median with binomial distr.
+s = sum(after<6); s
+binom.test(s,n,p=0.5,alt="g") 
+
+# fraction of cholesterol levels lower than 4.5 in after is at most 0.25
+s2 = (sum(after<4.5))
+binom.test(s2,n,p=0.25,alt="l")
