@@ -8,12 +8,27 @@ post = data$weight6weeks
 age = data$age
 
 # test sign. difference -> check assumptions (normality etc.) otherwise other test is needed
-# check diff in diets!!!!!!!  -> paired = TRUE
-t.test(pre,post,paired=TRUE)
+par(mfrow = c(1,3))
+boxplot(data$weight.lost[data$diet == 1], main="Diet 1", ylab="Weight lost")
+boxplot(data$weight.lost[data$diet == 2], main="Diet 2", ylab="Weight lost")
+boxplot(data$weight.lost[data$diet == 3], main="Diet 3", ylab="Weight lost")
+# @ plotto -> hier heb ik boxplots van verschil in weight lost per diet, doe ff commenten hierover
 
-# add boxplots of data
-# add boxplots of weight lost
-# add qq plots
+par(mfrow = c(1,2))
+boxplot(data$pre)
+boxplot(data$post)
+# @ plotto -> deze doet het nog niet helemaal zoals ik wil, maar wil gewoon normale boxplotto als summary van data
+
+
+t.test(pre,post,paired=TRUE)
+# @ plotto -> deze test laat zien dat het verschil in means van pre en post niet 0 is. (dus diff.)
+
+# @ plotto -> is de data paired? jazeker! want dit zijn steeds dezelfde personen die de meting doen. 
+
+
+# add boxplots of data -> 
+# add boxplots of weight lost -> check!
+# add qq plots -> is this right?
 # add shapiro wilk
 
 # plot hist of loss per diet
