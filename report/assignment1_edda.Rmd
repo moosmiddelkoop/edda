@@ -78,7 +78,7 @@ glue('CI length: {lenci},    Bootstrap CI length: {lenbsci}');
 ```
 This shows that the length of the bootstrap CI is smaller, which indicates that it is more accurate.
 
-
+ 
 #### B
 ##### An expert claims that the mean birthweight is bigger than 2800 gram. Verify this claim by using a relevant t-test
 
@@ -100,23 +100,35 @@ A one-sided test is less strict than a two-tailed test and as expected, the p va
 ##### Explain the meaning of the CI in the R-output for this test
 
 ##### Propose and perform a suitable sign tests for this problem.
-Proposed sign test: T = #(x>2800)
+To test about a sample medianm, we can also use a sign test. We propose a sign test where the H0 is median = 2800 and the H1 is median > 2800. we'll call 2800 the m0. from this follows the test: T = #(x>2800). Following the arguments stated in 1a, this is a one-sided test.
 ```{r}
 nT = length(x[x>2800]); 
 pttest = t.test(x,mu=2800,alt="g")[[3]]
 psign = binom.test(nT,n,p=0.5)[[3]]
 ```
 
-Compare -> should we simulate? or is one enough
+Now we can compare the results from both tests
 ```{r}
-pttest<psign
+pttest
+psign
 ```
-Talk about diff of tests, which is better etc. (comparison of p-values)
+
+When looking at the resulting p values from both tests, we can see that the null hypothesis doesn't get rejected by the sign test, but that the t-test does succeed in providing significant results.  
+
+@GIJS: which is better?
 
 ### C
 Compute powers -> look at this
 
+Wordt nog gefixt?
+
+#### Propose a way to compute the powers of the t-test and sing test from b) at some mu>2800, comment.
+
 ### D
+#### Let p be the probability that birthweight of a newborn baby is less than 2600 gram. Using asymptotic normality, the expert computed the left end p-hat-l = 0.25 of the confidence interval [p-hat-l, p-hat-r] for p. Recover the whole confidence interval and its confidence level.
+
+Ik ben een beetje lost bij deze
+
 ```{r}
 q = length(x[x<2600])/n - 0.25
 pr = length(x[x<2600])/n + q
@@ -127,7 +139,6 @@ ci_p = c(0.25,pr)
 ```
 Confidence interval is [`r round(ci_p,3)`]
 
-
 Now compute confidence level, by (math): q = z_(a/2) * sd/sqrt(n), so z_(a/2) = q * sqrt(n) / sd
 ```{r}
 z = q * (sqrt(n) / sd)
@@ -136,9 +147,20 @@ pnorm(z)
 
 Is this correct? -> alpha. Look at this
 
-
 ### E
+#### The expert also reports that there were 34 male and 28 female babies among 62 who weighted less than 2600 gram, and 61 male and 65 female babies among the remaining 126 babies. The expert claims that the mean weight is different for male and female babies. Verify this claim by an appropriate test.
 
+To verify this claim we have to test for a difference in proportions. This can be done with `prop.test()` in R. This test tests whether the proportion of 'success' between two population differs. In order to use this test, we have to assume normality of the data. In this case we take 'succes' to mean weighing less than 2600 grams. This way we can test whether the proportion of babies weighing less than 2600 grams is different between males and females.
+
+```{r}
+# <2600g: 34 males, 28 females
+# >2600g: 61 males, 65 females.
+male = 34 + 61
+female = 28 + 65
+
+prop.test(c(34,28),c(male,female))
+```
+The results from this test show us that there is no significant difference between the proportion of babies weighing less than 2600 grams between males and females.
 
 ## Exercise 2
 
