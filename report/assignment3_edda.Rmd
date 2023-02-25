@@ -1,0 +1,49 @@
+---
+title: "Assignment 1"
+author: "Gijs Smeets, Daan Wijnhorst, Moos Middelkoop, group 35"
+date: "February 2023"
+output:
+  html_document:
+    df_print: paged
+fontsize: 11pt
+highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(glue)
+```
+
+**Introductory description:** To investigate the effect of 3 types of diet, 78 persons were divided randomly in 3 groups, the first group following diet 1, second group diet 2 and the third group diet 3. Next to some other characteristics, the weight was measured before diet and after 6 weeks of diet for each person in the study. The collected data is summarized in the data frame diet.txt with the following columns: person – participant number, gender – gender (1 = male, 0 = female), age – age (years), height – height (cm), preweight – weight before the diet (kg), diet – the type of diet followed, weight6weeks – weight after 6 weeks of diet (kg). Compute and add to the data frame the variable weight.lost expressing the lost weight, to be used as response variable.
+
+Let's start by loading the data and creating a new column containing `weight.lost`, the difference between starting weight and weight after six weeks. If participants actually lost weight, this value will be negative. If they gained weight, this value will be positive.
+```{r}
+data = read.table('../data/diet.txt', header=TRUE)
+
+weight.lost = data$preweight - data$weight6weeks
+data = cbind(data,weight.lost)
+
+pre = data$preweight
+post = data$weight6weeks
+age = data$age
+```
+
+### A
+#### Make an informative graphical summary of the data relevant for study of the effect of diet on the wight loss. 
+
+lorem ipsum dolor sit amet
+
+####By using only the columns preweight and weight6weeks, test the claim that the diet affects the weight loss. Check the assumptions of the test applied.
+
+To test this claim, we use a paired t-test. Normality of data is crucial for a correct t-test. We test this assumption by creating a QQplot and performing a shapiro-wilk test. As this is a two-sample t-test, we check normality of the **differences**. If the differences follow a normal distribution, we expect the qqplot to show a linear relation and we expect the null hypothesis of normality to not be rejected by the Shapiro-Wilk test.
+
+```{r}
+qqnorm(weight.lost); qqline(weight.lost)
+shapiro.test(weight.lost)
+```
+The results of the plot and the test are in line with our expectations, there is no reason to expect that the differences are not taken from a normal population. We can commence with a paired two-sample t-test.
+
+```{r}
+pttest = t.test(pre,post,paired=TRUE)
+pttest
+```
