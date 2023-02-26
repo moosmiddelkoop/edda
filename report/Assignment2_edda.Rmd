@@ -69,18 +69,18 @@ In this test, H0: the mean difference between the values of X and Y are 0 H1: th
 #T-test
 t.test(before, after, paired = TRUE)
 ```
-As the p-value is below 0.05 we reject H0 and conclude the mean paired differences are not equal to zero.
+As the p-value is below 0.05 we reject H0 of the T-test and conclude the mean paired differences are not equal to zero.
 
 Another relevant test is testing for correlation.
 
-We use the Pearson correlation test if the data is normally distributed and otherwise the Spearman test.
+We use the Pearson's correlation test as we have considered the data to be normally distributed in subsection A.
 
 ```{r, fig.margin = FALSE,fig.width=8,fig.height=4,fig.align="center"} 
 #pearson corr. test
 par(mfrow=c(1,2))
 cor.test(before,after)
 ```
-Pearson's returns the correlation value of 0.9908885 and Spearman's  p-value = 9.753e-06 herefore we conclude there exists a strong (positive) correlation between the two variables.
+Pearson's returns the correlation value of 0.9908885 herefore we conclude there exists a strong (positive) correlation between the two variables.
 
 Combining the results of the two tests, we conclude that the low fat margarine diet has an effect.
 
@@ -106,6 +106,7 @@ p
 As P = 0 we conclude that there is indeed a significant difference between the before and after data.
 
 ### C
+As we can assume from the assignment that the sample has an underlying uniform distribution, we can construct the point estimate as followed:
 ```{r} 
 # function that computes variance of uniformly distr. variable
 unif_var = function(a,b){
@@ -115,12 +116,20 @@ unif_var = function(a,b){
 # E(X) = (a+b)/2 = mean(after)
 # So point estimate of b is 2*E(X)-3
 theta_est = 2*mean(after)-3
-
+```
+Now we have the point estimate, we can construct the confidence interval for level 1-alpha. As we know sigma we can compute the CI as follows:
+```{r}
 #build 95%-CI for theta_est
 n = length(after)
 ci_theta = c(theta_est - qnorm(0.975)*(sqrt(unif_var(3,theta_est))/sqrt(n)), theta_est + qnorm(0.975)*(sqrt(unif_var(3,theta_est))/sqrt(n)))
 ci_theta
+
+
 ```
+This returns us the interval 7.816600, 9.298956.
+we can try to improve the CI via choosing a different estimating statistic from the population (the median for example) and look at the difference between the returned interval and the new interval this looks as follows:
+
+
 ### D
 
 #bootstrap test
@@ -146,10 +155,8 @@ for (theta in 3:12){
 }
 res = rbind(vT,vP); res
 
-# kolmogorov-smirnov can not be applied, explain.... (totally diff test)
-
 ```
-Kolmogorov-Smirnov test can not be applied as 
+Kolmogorov-Smirnov test can be applied as this test tests for H0 that the two undferlying distributions are the same. The uniform distribution can be distribution 1 and the sampled data can be distribution 2.
 
 ### E
 ```{r} 
@@ -162,12 +169,3 @@ binom.test(s,n,p=0.5,alt="g")
 s2 = (sum(after<4.5))
 binom.test(s2,n,p=0.25,alt="l")
 ```
-
-## EXERCISE 2E
-# sign test for the median with binomial distr.
-s = sum(after<6); s
-binom.test(s,n,p=0.5,alt="g") 
-
-# fraction of cholesterol levels lower than 4.5 in after is at most 0.25
-s2 = (sum(after<4.5))
-binom.test(s2,n,p=0.25,alt="l")
