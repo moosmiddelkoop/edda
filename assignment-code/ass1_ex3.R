@@ -56,6 +56,7 @@ summary(reg)
 
 
 ## ANOVA (Ex. 3B)
+# @gijs - waarom stripchart? en als je t al doet zou je t liefst de diets naat elkaar hebben toch?
 boxplot(data); stripchart(data)
 data$diet = as.factor(data$diet)
 df = data[c("weight.lost","diet")]; df
@@ -74,7 +75,7 @@ plot(fitted(weightlostaov),residuals(weightlostaov))
 
 # can kruskal-wallis be used for this? -> can be used! However, we have seen that residuals are normally distributed, so usage of kruskal-wallis test is not needed.
 # compare kruskal-wallis test results with those of one-way anova
-kruskal.test(weight.lost,diet)
+kruskal.test(weight.lost, df$diet)
 
 
 #TWO WAY ANOVA (ex. 3C)

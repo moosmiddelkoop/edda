@@ -44,6 +44,50 @@ shapiro.test(weight.lost)
 The results of the plot and the test are in line with our expectations, there is no reason to expect that the differences are not taken from a normal population. We can commence with a paired two-sample t-test.
 
 ```{r}
-pttest = t.test(pre,post,paired=TRUE)
-pttest
+t.test(pre,post,paired=TRUE)
 ```
+The resulting very small p value confirms the claim that the diet affects weight loss.
+
+### B
+#### Apply one-way ANOVA to test whether type of diet has an effect on the lost weight. Do all three types diets lead to weight loss? Which diet was the best for losing weight?
+
+First we have to factorize the diet column of the data, and strip all non-interesting columns from the dataframe. We remain with a dataframe containing diet type and weight lost as columns, and do a small check to see if the diet values are now factors instead of a numeric value.
+
+```{r}
+data$diet = as.factor(data$diet)
+df = data[c("weight.lost","diet")]; df
+is.factor(df$diet); is.numeric(df$diet)
+```
+
+Next we can perform a one-way ANOVA. We print a summary of the results, and the resulting confidence intervals
+
+```{r}
+weightlostaov = lm(weight.lost~diet,data=df)
+anova(weightlostaov)
+summary(weightlostaov)
+confint(weightlostaov)
+```
+
+Only diet 1 and 3 seem to have a statistically significant effect on the weight lost. Diet one looks to be the best for weight loss, with the 95% CI being [2.326, 4.274] (kilograms lost). The p value is also by far the lowest for diet 1.
+
+We still have to show that the normality assumption is not violated, this is done by plotting the residuals. They should look normal. Furthermore, plotted against the residuals, the fitted values should show no pattern
+
+```{r}
+par(mfrow=c(1,2)); qqnorm(residuals(weightlostaov))
+plot(fitted(weightlostaov),residuals(weightlostaov))
+```
+
+Judging from these plots, there is no reason to suspect the normality assumption has been violated.
+
+#### Can the Kruskal-Wallis test be applied for this situation?
+
+It can be used! However, we have seen that residuals are normally distributed, so there would be no need to use the Kruskal-Wallis test. Let's compare the kruskal-wallis test results with those of one-way anova for curiosity's sake.
+
+```{r}
+kruskal.test(weight.lost, df$diet)
+```
+### C
+#### Use two-way ANOVA to investigate effect of the diet and gender (and possible interaction) on the lost weight.
+
+### E
+#### Which of the two approaches, the one from b) or the one from c), do you prefer? Why? For the preferred model, predict the lost weight for all three types of diet." instead of "Which of the two approaches, the one from b) or the one from d), do you prefer? Why? For the preferred model, predict the lost weight for all three types of diet for an average person.
