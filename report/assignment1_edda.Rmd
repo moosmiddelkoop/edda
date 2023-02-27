@@ -22,23 +22,20 @@ data = read.table('../data/birthweight.txt',header=TRUE)
 x = data$birthweight
 ```
 
-
 #### A
-##### Check normality of the data. Assuming normality (irrespective of your conclusion about normality), construct a bounded 96%-CI for mu. Evaluate the sample size needed to provide that the length of the 96%-CI is at most 100. Compute a bootstrap 96%-CI for mu and compare it to the above CI.
-
-To check for normality we use a Shapiro-Wilk test. The null-hypothesis for this test is that the data is normally distributed. While it is not possible to infer results from a failed rejection of the null hypothesis , the result of this test can tell us if there is no significant non-normality present.
+To check for normality we use a Shapiro-Wilk test. The null-hypothesis for this test is that the data is normally distributed. While it is not possible to infer results from a failed rejection of the null hypothesis , the result of this test can tell us that there is no significant non-normality present.
 
 ```{r}
 shapiro.test(x)
 ```
 
-Additionally, we create a qqplot to plot the quantiles of our data against those of a normal distribution, to get a visual impression of the normality of the data.
+Additionally, we create a QQ-plot to plot the quantiles of our data against those of a normal distribution, to get a visual impression of the normality of the data.
 
 ```{r,echo=FALSE,figheight=1.5}
 qqnorm(x); qqline(x)
 ```
 
-The linearity of this plot and a `p=0.8895` gives us a strong impression that our data is normally distributed. Now we can go on to construct the 95% confidence interval (CI) for mu, assuming normality.
+The linear look this plot and the result from the Shapiro-test give us a strong impression that our data is normally distributed. Now we can go on to construct the 95% confidence interval (CI) for $\mu$, assuming normality.
 
 ```{r}
 mean = mean(x)
@@ -50,14 +47,12 @@ ci = c((mean - qnorm(0.98)*(sd/sqrt(n))), (mean + qnorm(0.98)*(sd/sqrt(n))))
 
 This results in a confidence interval of [`r round(ci,3)`]
 
-The margin of error is 50. Following theory, we have to show that `qnorm(0.98)*(sd/sqrt(n)) =< 50` to compute the minimal sample size needed to provide that the length of the 96%-CI is at most 100.
+If we want to construct a confidence interval bounded by a length of 100, we have that the margin of error is 50. Following theory, we have to show that qnorm(1 - $\alpha$/2) * (sd / sqrt(n)) =< 50 to compute the minimal sample size needed to provide that the length of the 96%-CI is at most 100.
 ```{r}
 min_n = ((qnorm(0.98)^2)*(sd^2))/(50^2)
 ```
-This results in `min_n` being `r round(min_n,3)`.
+We can draw values from the normal distribution as we have previously assumed the normality assumption of the data to be correct. This results in ``min_n` being `r round(min_n,3)`. Next we perform a bootstrap 96%-CI for mu and we compare it to the CI computed before. We take 1000 repetitions.
 
-
-##### bootstrap 96%-CI 
 ```{r}
 B = 1000
 Tstar = numeric(B);
@@ -68,21 +63,19 @@ for (i in 1:B){
 Tstar20 = quantile(Tstar,0.020)[[1]]
 Tstar980 = quantile(Tstar,0.975)[[1]]
 bootstrapci = c(2*mean-Tstar980,2*mean-Tstar20)
-```
 
-Next we compare the length of the bootstrap 96% CI to the bounded 96% CI
-```{r}
-lenci = ci[2]-ci[1]
-lenbsci = bootstrapci[2]-bootstrapci[1]
+lenci = round(ci[2]-ci[1],3)
+lenbsci = round(bootstrapci[2]-bootstrapci[1],3)
+glue('CI: [{ci[1]}, {ci[2]}],    Bootstrap CI length: [{bootstrapci[1]}, {bootstrapci[2]}]')
 glue('CI length: {lenci},    Bootstrap CI length: {lenbsci}');
 ```
-This shows that the length of the bootstrap CI is smaller, which indicates that it is more accurate.
+
+This shows that the length of the bootstrap CI is smaller and it lies inside the original CI, so we suspect that it is more accurate.
 
  
 #### B
-##### An expert claims that the mean birthweight is bigger than 2800 gram. Verify this claim by using a relevant t-test
 
-In order to verify this claim, we perform a t-test
+An expert claims that the mean birthweight is bigger than 2800 gram. In order to verify this claim, we perform a t-test.
 ```{r}
 t.test(x, mu=2800)
 ```
@@ -97,49 +90,49 @@ t.test(x, mu=2800, alt='g')
 
 A one-sided test is less strict than a two-tailed test and as expected, the p value is twice as low for the one-sided test as for the two-tailed test. 
 
-##### Explain the meaning of the CI in the R-output for this test
+Depending on which side you are looking at, a one-sided confidence interval is either of the form (−∞,𝑐1] or of the form [𝑐2,∞)
 
-##### Propose and perform a suitable sign tests for this problem.
-To test about a sample medianm, we can also use a sign test. We propose a sign test where the H0 is median = 2800 and the H1 is median > 2800. we'll call 2800 the m0. from this follows the test: T = #(x>2800). Following the arguments stated in 1a, this is a one-sided test.
+To test about a sample median, we can also use a sign test. We propose a sign test where the H0 is median = 2800 and the H1 is median > 2800. We'll call 2800 the m0. From this follows the test statistic: T = #(x>2800). Under H0, the data should follow a binomial distribution, so we can compare a binomial distribution with the test statistic.
 ```{r}
 nT = length(x[x>2800]); 
-pttest = t.test(x,mu=2800,alt="g")[[3]]
 psign = binom.test(nT,n,p=0.5)[[3]]
-```
-
-Now we can compare the results from both tests
-```{r}
-pttest
 psign
 ```
 
-When looking at the resulting p values from both tests, we can see that the null hypothesis doesn't get rejected by the sign test, but that the t-test does succeed in providing significant results.  
-
-@GIJS: which is better?
+When looking at the resulting p value from the sign test, we can see that the null hypothesis doesn't get rejected, we conclude that we do not have enough evidence to reject H0 with the sample data.
 
 ### C
-Compute powers -> look at this
+We test at 'some' $\mu$>2800. Here we test at $\mu$ = 2800 (we generate under H1, $\mu$ = 2800.) We can already see that the fraction of rejections is larger for t-tests (0.051 > 0.046). If we generate for $\mu$ > 2800, say, $\mu$ = 2900, then the fraction of rejections is even larger (sign test: 0.326, t-test: 0.6) than for the sign test. From this we can conclude the power of the t-test is larger than for the sign test.
 
-Wordt nog gefixt?
+```{r}
+psign_val = numeric(B)
+pttest_val = numeric(B)
 
-#### Propose a way to compute the powers of the t-test and sing test from b) at some mu>2800, comment.
+B = 1000
+
+for (i in 1:B) {
+    x1 = rnorm(n,mean=2900,sd=sd)
+    pttest_val[i]=t.test(x1,mu=2800,alt="g")[[3]]; 
+    psign_val[i]=binom.test(sum(x1>2800),n,p=0.5)[[3]]; 
+  }
+fracsign = sum(psign_val<0.05)/B; fracsign
+fracttest = sum(pttest_val<0.05)/B; fracttest
+```
+
 
 ### D
 #### Let p be the probability that birthweight of a newborn baby is less than 2600 gram. Using asymptotic normality, the expert computed the left end p-hat-l = 0.25 of the confidence interval [p-hat-l, p-hat-r] for p. Recover the whole confidence interval and its confidence level.
 
-Ik ben een beetje lost bij deze
+The best estimator we can create right now is that the  lies under 2600 grams.
 
 ```{r}
 q = length(x[x<2600])/n - 0.25
 pr = length(x[x<2600])/n + q
-```
-
-```{r}
 ci_p = c(0.25,pr)
 ```
 Confidence interval is [`r round(ci_p,3)`]
 
-Now compute confidence level, by (math): q = z_(a/2) * sd/sqrt(n), so z_(a/2) = q * sqrt(n) / sd
+Now compute confidence level, by: $q = z_(a/2) * sd/sqrt(n)$, so: $z_(a/2) = q * sqrt(n) / sd$
 ```{r}
 z = q * (sqrt(n) / sd)
 pnorm(z)
@@ -161,66 +154,3 @@ female = 28 + 65
 prop.test(c(34,28),c(male,female))
 ```
 The results from this test show us that there is no significant difference between the proportion of babies weighing less than 2600 grams between males and females.
-
-## Exercise 2
-
-### A
-```{r}
-data = read.table('../data/cholesterol.txt',header=TRUE); data
-before = data$Before
-after = data$After8weeks
-summary(data)
-shapiro.test(before)
-shapiro.test(after)
-```
-```{r,echo=FALSE}
-reg = lm(after ~ before)
-plot(before,after, pch=16, col="blue")
-abline(reg)
-```
-summary(reg) adj R^2 = 0.98 explained, correlated positively, but less than 1 so cholesterol level gets less. 
-
-But easier to see, if we remove before bias and only look at first differences:
-```{r,echo=FALSE}
-diff = after - before
-reg2 = lm(diff ~ before)
-plot(before,diff, pch=16, col="red")
-abline(reg2)
-summary(reg2)
-```
-Notice that decrease in cholesterol level is higher for people who have higher cholesterol level before the experiment
-
-### B
-
-### C
-
-### D
-
-### E
-
-
-## Exercise 3
-
-### A
-
-### B
-
-### C
-
-### D
-
-### E
-
-
-## Exercise 4
-
-### A
-
-### B
-
-### C
-
-### D
-
-### E
-
