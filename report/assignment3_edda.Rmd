@@ -31,6 +31,19 @@ age = data$age
 ### A
 #### Make an informative graphical summary of the data relevant for study of the effect of diet on the wight loss. 
 
+wat is hier mis???
+```{r}
+par(mfrow = c(1,3))
+boxplot(data$weight.lost[data$diet == 1], main="Diet 1", ylab="Weight lost")
+boxplot(data$weight.lost[data$diet == 2], main="Diet 2", ylab="Weight lost")
+boxplot(data$weight.lost[data$diet == 3], main="Diet 3", ylab="Weight lost")
+
+#OR
+boxplot(data$weight.lost~data$diet)
+boxplot(data$weight.lost~data$gender)
+hist(data$weight.lost)
+```
+
 lorem ipsum dolor sit amet
 
 ####By using only the columns preweight and weight6weeks, test the claim that the diet affects the weight loss. Check the assumptions of the test applied.
@@ -86,8 +99,53 @@ It can be used! However, we have seen that residuals are normally distributed, s
 ```{r}
 kruskal.test(weight.lost, df$diet)
 ```
+
 ### C
 #### Use two-way ANOVA to investigate effect of the diet and gender (and possible interaction) on the lost weight.
 
+First, create a new dataframe consisting of gender, diet, and weight lost. Make sure gender and diet are factors and nog numeric values.
+
+```{r}
+data$gender = as.factor(data$gender)
+df2 = data[c("weight.lost","diet","gender")]
+is.factor(df2$gender); is.factor(df2$diet)
+```
+
+To visually show wheter there is an interaciton effect, an interaction plot can be made. If curves run parralel, there is probably no interaction. Otherwise, interaction shows up as nonparallel curves
+
+```{r}
+gender = data$gender
+diet = data$diet
+par(mfrow=c(1,2))
+interaction.plot(gender,diet,weight.lost)
+interaction.plot(diet,gender,weight.lost)
+```
+From the results of these plots, we can expect an interaction effect between gender and diet. Now it's time to perform the two-way ANOVAn to statistically inspect interaction beteen gender and diet on weight loss. Remeber: when performing a two-way anova on the interaction of two factors, one cannot make conclusions based on
+
+```{r}
+twoway = lm(weight.lost~diet*gender,data=df2)
+anova(twoway)
+summary(twoway)
+confint(twoway)
+```
+
+With p = 0.048 and alpha = 0.05 for the interaction diet*gender, the interaction variable is significant. Because we know there is an interaction effect, we can't check for individual effects reliably (KLOPT DIT????????)
+
+In order to check the assumptions for normality and equal variances, we still need to plot the residuals.
+```{r}
+par(mfrow=c(1,2)); qqnorm(residuals(twoway));
+plot(fitted(twoway),residuals(twoway))
+```
+The qqplot seems fairly linear, and there is no pattern in the residuals plotted against the fitted data. Therefore there is no reason to suspect violation of the normality and equailyt of variances assumptions.
+
 ### E
 #### Which of the two approaches, the one from b) or the one from c), do you prefer? Why? For the preferred model, predict the lost weight for all three types of diet." instead of "Which of the two approaches, the one from b) or the one from d), do you prefer? Why? For the preferred model, predict the lost weight for all three types of diet for an average person.
+
+Personally, I like the approach from b best, because it tests for an interaction effet. By my understanding, if an interaction effect between two factors is present, the results from just analyzing those factors individually, will be less reliable. This is because we know for certain that another factor had an influence on the relation between the first factor and the outcome variable.
+
+because we already got rid of first differences (resulting in variable 'weight.lost'), we can interpret the ANOVA estimated parameters as without intercept
+
+```{r}
+summary(weightlostaov)
+```
+Hence, the expected weight loss for an average person in kilograms based on each three diets is: diet 1: 3.3, diet 2: 0.27 (no significant weight loss), and diet three: 1.8481.

@@ -57,7 +57,7 @@ summary(reg)
 
 ## ANOVA (Ex. 3B)
 # @gijs - waarom stripchart? en als je t al doet zou je t liefst de diets naat elkaar hebben toch?
-boxplot(data); stripchart(data)
+boxplot(data$weight.lost~data$diet); stripchart(data$weight.lost~data$diet)
 data$diet = as.factor(data$diet)
 df = data[c("weight.lost","diet")]; df
 is.factor(df$diet); is.numeric(df$diet)
