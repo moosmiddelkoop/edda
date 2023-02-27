@@ -89,10 +89,7 @@ anova(twoway)
 interaction.plot(npk$N,npk$block,npk$yield); interaction.plot(npk$block,npk$N,npk$yield)
 ```
 
-From this result we have enough evidence to reject hypotheses 1. and 2. but not 3. as we did not obtain a P-value lower than the significance level. Therefore we do not have enough evidence to conclude there to be significant interaction between the two factors. 
-
-However, we conclude that there is a main effect of the two factors individually.
-It was sensible to include the factor 'block', as 
+As seen in the results, we do not have enough evidence to reject hypothesis 3. as we did not obtain a P-value lower than the significance level. Therefore we do not have enough evidence to conclude there to be significant interaction between the two factors and we should use the additive model to see about the interaction effect.
 ```{r}
 # -> compute anova on additive model
 twoway2  = lm(yield~block+N,data=df)
@@ -106,6 +103,8 @@ confint(twoway2)
 par(mfrow=c(1,2)); qqnorm(residuals(twoway2))
 plot(fitted(twoway2),residuals(twoway2))
 ```
+From the additive model we see a main-effect in both factors considered, therefore we reject hypotheses 1. and 2. and we have enough evidence to conclude that there exists a main effect for both factors, but no interaction between the factors.
+It was sensible to include the factor 'block', as we could see that there exists a main effect in 
 
 # was it sensible to also include 'block' as factor in this model? --> comment
 # yes, because significant (?)
