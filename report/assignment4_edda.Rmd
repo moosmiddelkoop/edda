@@ -1,0 +1,68 @@
+---
+title: "Assignment 1"
+author: "Gijs Smeets, Daan Wijnhorst, Moos Middelkoop, group 35"
+date: "February 2023"
+output:
+  html_document:
+    df_print: paged
+fontsize: 11pt
+highlight: tango
+---
+## EXERCISE 4A
+To randomize the distribution of soil additives, first we replace all values in the data frame for zeroes.
+```{r}
+my.data = npk;
+my.data$yield = NULL
+my.vec = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+my.data$N = my.vec
+my.data$P = my.vec
+my.data$K = my.vec
+```
+Then, we randomly sample two integers per additive from a discrete uniform distribution, which correspond to given plots in the dataframe where the additives will be inserted.
+```{r}
+for (i in 1:6) {
+  nitr = sample.int(4,2); nitr
+  phoss = sample.int(4,2); phoss 
+  k = sample.int(4,2); k
+  
+  nitr = nitr + (4 * (i-1)); nitr
+  phoss = phoss + (4 * (i-1)); phoss
+  k = k + (4 * (i-1));k
+  my.data$N[nitr] = 1; my.data$N[nitr]
+  my.data$P[phoss] = 1;
+  my.data$K[k] = 1;
+  
+}
+# randomized soil additives per block
+my.data
+```
+
+##  EXERCISE 4B
+
+```{r}
+nitr = numeric(6)
+nonitr = numeric(6)
+for (i in 1:6){
+  
+  for (j in 0:1){
+    cat("block", i, "N", j)
+    mean = mean(npk[npk$block == i & npk$N == j,]$yield) 
+    print(mean)
+    
+    if (j == 0){
+      nonitr[i] = mean
+    }
+    else{
+      nitr[i] = mean
+    }
+    
+    
+  }
+}
+nitr
+nonitr
+blocks = seq(1:6)
+test = rbind(nonitr,nitr)
+barplot(test,beside=T)
+```
+
