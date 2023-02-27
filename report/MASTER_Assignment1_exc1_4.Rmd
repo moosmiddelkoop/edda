@@ -10,36 +10,41 @@ fontsize: 10pt
 highlight: tango
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(glue)
 ```
 
-## Exercise 1. Birthweights
+## EXERCISE 1. Birthweights
 
-LOADING IN DATA
+Let's start by loading in the data
+\small
 ```{r}
 data = read.table('../data/birthweight.txt',header=TRUE)
 x = data$birthweight
 ```
+\normalsize
+### EXERCISE 1A
+To check for normality we use a Shapiro-Wilk test. The null-hypothesis for this test is that the data is normally distributed. While it is not possible to infer results from a failed rejection of the null hypothesis , the result of this test can tell us that there is no significant non-normality present.
 
-#### A
-##### Check normality of the data. Assuming normality (irrespective of your conclusion about normality), construct a bounded 96%-CI for mu. Evaluate the sample size needed to provide that the length of the 96%-CI is at most 100. Compute a bootstrap 96%-CI for mu and compare it to the above CI.
-
-To check for normality we use a Shapiro-Wilk test. The null-hypothesis for this test is that the data is normally distributed. While it is not possible to infer results from a failed rejection of the null hypothesis , the result of this test can tell us if there is no significant non-normality present.
-
+\small
 ```{r}
 shapiro.test(x)
 ```
+\normalsize
 
-Additionally, we create a qqplot to plot the quantiles of our data against those of a normal distribution, to get a visual impression of the normality of the data.
+Additionally, we create a QQ-plot to plot the quantiles of our data against those of a normal distribution, to get a visual impression of the normality of the data.
 
-```{r,echo=FALSE,figheight=1.5}
-qqnorm(x); qqline(x)
+\small
+```{r,echo=FALSE,fig.height=3.9, fig.width=8}
+qqnorm(x, main=list('normal Q-Q plot', cex=1)); qqline(x)
 ```
+\normalsize
 
-The linearity of this plot and a `p=0.8895` gives us a strong impression that our data is normally distributed. Now we can go on to construct the 95% confidence interval (CI) for mu, assuming normality.
+The linear look this plot and the result from the Shapiro-test give us a strong impression that our data is normally distributed. Now we can go on to construct the 95% confidence interval (CI) for $\mu$, assuming normality.
 
+\small
 ```{r}
 mean = mean(x)
 sd = sd(x)
@@ -47,17 +52,19 @@ n = length(x)
 
 ci = c((mean - qnorm(0.98)*(sd/sqrt(n))), (mean + qnorm(0.98)*(sd/sqrt(n))))
 ```
-
+\normalsize
 This results in a confidence interval of [`r round(ci,3)`]
 
-The margin of error is 50. Following theory, we have to show that `qnorm(0.98)*(sd/sqrt(n)) =< 50` to compute the minimal sample size needed to provide that the length of the 96%-CI is at most 100.
+If we want to construct a confidence interval bounded by a length of 100, we have that the margin of error is 50. Following theory, we have to show that qnorm(1 - $\alpha$/2) * (sd / sqrt(n)) =< 50 to compute the minimal sample size needed to provide that the length of the 96%-CI is at most 100.
+
+\small
 ```{r}
 min_n = ((qnorm(0.98)^2)*(sd^2))/(50^2)
 ```
-This results in `min_n` being `r round(min_n,3)`.
+\normalsize
+We can draw values from the normal distribution as we have previously assumed the normality assumption of the data to be correct. This results in `min_n` being `r round(min_n,3)`. Next we perform a bootstrap 96%-CI for mu and we compare it to the CI computed before. We take 1000 repetitions.
 
-
-##### bootstrap 96%-CI 
+\small
 ```{r}
 B = 1000
 Tstar = numeric(B);
@@ -68,90 +75,91 @@ for (i in 1:B){
 Tstar20 = quantile(Tstar,0.020)[[1]]
 Tstar980 = quantile(Tstar,0.975)[[1]]
 bootstrapci = c(2*mean-Tstar980,2*mean-Tstar20)
-```
 
-Next we compare the length of the bootstrap 96% CI to the bounded 96% CI
-```{r}
-lenci = ci[2]-ci[1]
-lenbsci = bootstrapci[2]-bootstrapci[1]
+lenci = round(ci[2]-ci[1],3)
+lenbsci = round(bootstrapci[2]-bootstrapci[1],3)
+glue('CI: [{ci[1]}, {ci[2]}],    Bootstrap CI length: [{bootstrapci[1]}, {bootstrapci[2]}]')
 glue('CI length: {lenci},    Bootstrap CI length: {lenbsci}');
 ```
-This shows that the length of the bootstrap CI is smaller, which indicates that it is more accurate.
+\normalsize
 
- 
-#### B
-##### An expert claims that the mean birthweight is bigger than 2800 gram. Verify this claim by using a relevant t-test
+This shows that the length of the bootstrap CI is smaller and it lies inside the original CI, so we suspect that it is more accurate.
 
-In order to verify this claim, we perform a t-test
+### EXERCISE B
+
+An expert claims that the mean birthweight is bigger than 2800 gram. In order to verify this claim, we perform a t-test.
+
+\small
 ```{r}
-t.test(x, mu=2800)
+t.test(x, mu=2800)$p.value
 ```
+\normalsize
 The p-value 0.02713 < 0.05, and the mean of the sample is 2913, we can reject the null-hypothesis and conclude that the mean birthweight is statistically significantly bigger than 2800 grams.
 
 This result is already statistically significant. One could also argue that a one-sided t-test can be justified. because it's an experts claim that babies will weigh more than 2800 grams.
 This would make `H0 = mu > 2800`. 
-
+\small
 ```{r}
-t.test(x, mu=2800, alt='g')
+t.test(x, mu=2800, alt='g')$p.value
 ```
-
+\normalsize
 A one-sided test is less strict than a two-tailed test and as expected, the p value is twice as low for the one-sided test as for the two-tailed test. 
 
-##### Explain the meaning of the CI in the R-output for this test
+Depending on which side you are looking at, a one-sided confidence interval is either of the form (-$\infty$, c1] or of the form [c2,$\infty$)
 
-##### Propose and perform a suitable sign tests for this problem.
-To test about a sample medianm, we can also use a sign test. We propose a sign test where the H0 is median = 2800 and the H1 is median > 2800. we'll call 2800 the m0. from this follows the test: T = #(x>2800). Following the arguments stated in 1a, this is a one-sided test.
+To test about a sample median, we can also use a sign test. We propose a sign test where the H0 is median = 2800 and the H1 is median > 2800. We'll call 2800 the m0. From this follows the test statistic: T = #(x>2800). Under H0, the data should follow a binomial distribution, so we can compare a binomial distribution with the test statistic.
+\small
 ```{r}
 nT = length(x[x>2800]); 
-pttest = t.test(x,mu=2800,alt="g")[[3]]
 psign = binom.test(nT,n,p=0.5)[[3]]
-```
-
-Now we can compare the results from both tests
-```{r}
-pttest
 psign
 ```
+\normalsize
+When looking at the resulting p value from the sign test, we can see that the null hypothesis doesn't get rejected, we conclude that we do not have enough evidence to reject H0 with the sample data.
 
-When looking at the resulting p values from both tests, we can see that the null hypothesis doesn't get rejected by the sign test, but that the t-test does succeed in providing significant results.  
+### EXERCISE C
+We test at 'some' $\mu$>2800. Here we test at $\mu$ = 2800 (we generate under H1, $\mu$ = 2800.) We can already see that the fraction of rejections is larger for t-tests (0.051 > 0.046). If we generate for $\mu$ > 2800, say, $\mu$ = 2900, then the fraction of rejections is even larger (sign test: 0.326, t-test: 0.6) than for the sign test. From this we can conclude the power of the t-test is larger than for the sign test.
 
-@GIJS: which is better?
+\small
+```{r}
+psign_val = numeric(B)
+pttest_val = numeric(B)
 
-### C
-Compute powers -> look at this
+B = 1000
 
-Wordt nog gefixt?
-
-#### Propose a way to compute the powers of the t-test and sing test from b) at some mu>2800, comment.
-
-### D
+for (i in 1:B) {
+    x1 = rnorm(n,mean=2900,sd=sd)
+    pttest_val[i]=t.test(x1,mu=2800,alt="g")[[3]]; 
+    psign_val[i]=binom.test(sum(x1>2800),n,p=0.5)[[3]]; 
+  }
+fracsign = sum(psign_val<0.05)/B; fracsign
+fracttest = sum(pttest_val<0.05)/B; fracttest
+```
+\normalsize
+ 
+### EXERCISE D
 #### Let p be the probability that birthweight of a newborn baby is less than 2600 gram. Using asymptotic normality, the expert computed the left end p-hat-l = 0.25 of the confidence interval [p-hat-l, p-hat-r] for p. Recover the whole confidence interval and its confidence level.
 
-Ik ben een beetje lost bij deze
+Using the left bound of the confidence interval and an estimator for $p$, we can retrieve the right bound of the confidence interval and its confidence level. Making use of the sample data, a good point estimate for $p$ can be the fraction of babies that have a birthweight less than 2600 gram. This gives us $\hat{p}$. As the expert computed the confidence interval using asymptotic normality and we have the data following a binomial($n$,$p$) distribution, using the CLT we can retrieve the whole confidence interval.
 
+\small
 ```{r}
-q = length(x[x<2600])/n - 0.25
-pr = length(x[x<2600])/n + q
+p = length(x[x<2600])/n;
+B = (sqrt((p*(1-p))/n))
+z = (p - 0.25) / B
+ci_p = c(0.25,(p+B*z)); ci_p
+
+alpha = (pnorm(-z))*2; 1-alpha
 ```
+\normalsize
+After finding the confidence interval, [`r round(ci_p,3)`], we can find the confidence level of the interval (98%).
 
-```{r}
-ci_p = c(0.25,pr)
-```
-Confidence interval is [`r round(ci_p,3)`]
-
-Now compute confidence level, by (math): q = z_(a/2) * sd/sqrt(n), so z_(a/2) = q * sqrt(n) / sd
-```{r}
-z = q * (sqrt(n) / sd)
-pnorm(z)
-```
-
-Is this correct? -> alpha. Look at this
-
-### E
+### EXERCISE E
 #### The expert also reports that there were 34 male and 28 female babies among 62 who weighted less than 2600 gram, and 61 male and 65 female babies among the remaining 126 babies. The expert claims that the mean weight is different for male and female babies. Verify this claim by an appropriate test.
 
-To verify this claim we have to test for a difference in proportions. This can be done with `prop.test()` in R. This test tests whether the proportion of 'success' between two population differs. In order to use this test, we have to assume normality of the data. In this case we take 'succes' to mean weighing less than 2600 grams. This way we can test whether the proportion of babies weighing less than 2600 grams is different between males and females.
+34 male and 28 female babies weighed less than 2600 grams. 61 male and 65 female babies weighed more. The expert claims that the mean weight is different for male and female babies. To verify this claim we have to test for a difference in proportions. This can be done with `prop.test()` in R. This test tests whether the proportion of 'success' between two population differs. In order to use this test, we have to assume normality of the data. In this case we take 'succes' to mean weighing less than 2600 grams. This way we can test whether the proportion of babies weighing less than 2600 grams is different between males and females.
 
+\small
 ```{r}
 # <2600g: 34 males, 28 females
 # >2600g: 61 males, 65 females.
@@ -160,87 +168,95 @@ female = 28 + 65
 
 prop.test(c(34,28),c(male,female))
 ```
+\normalsize
+
 The results from this test show us that there is no significant difference between the proportion of babies weighing less than 2600 grams between males and females.
 
-## Exercise 2
+## EXERCISE 2. Cholesterol
 
-### A
+### EXERCISE 2A
 
-
+\small
 ```{r}
 data = read.table('../data/cholesterol.txt',header=TRUE)
 before = data$Before
 after = data$After8weeks
 ```
+\normalsize
+
 To check for normality, we look at the Q-Q plots
-```{r,echo=FALSE, fig.margin = FALSE,fig.width=12,fig.height=6,fig.align="center"}
+
+\small
+```{r,echo=FALSE, fig.margin = FALSE, fig.width=12,fig.height=4,fig.align="center"}
 par(mfrow=c(1,2))
 qqnorm(before,main="Q-Q Plot Before")
 qqnorm(after,main="Q-Q Plot After")
 ```
+\normalsize
 Here we see that the sampled data is approximately normal
+
+\small
 ```{r}
-summary(data)
-shapiro.test(before)
-shapiro.test(after)
+shapiro.test(before)$p.value
+shapiro.test(after)$p.value
 ```
+\normalsize
 To complement the visual check, we use the Shapiro-Wilk test. 
 In this test, the H0 is that the data is normal. H1 is that the data is not normal.
 
 As the p-value from the Shapiro-Wilk test is high for both values we do not have enough evidence to reject the null-hypothesis.
 If we combine this result with the visual check we can safely assume the data to be normally distributed.
 
+\small
 ```{r,echo=FALSE, fig.margin = FALSE,fig.width=8,fig.height=6,fig.align="center"}
 par(mfrow = c(2,2))
 hist(before); hist(after)
 boxplot(before); boxplot(after)
 ```
 
-
-```{r,echo=FALSE, fig.margin = FALSE,fig.width=12,fig.height=6,fig.align="center"}
+```{r, fig.margin = FALSE,fig.width=12,fig.height=6,fig.align="center"}
 par(mfrow=c(1,2))
 reg = lm(after ~ before)
 plot(before,after, pch=16, col="blue")
 abline(reg)
-summary(reg) 
+glue("R squared: {summary(reg)$r.squared}")
 diff = after - before
 reg2 = lm(diff ~ before)
 plot(before,diff, pch=16, col="red")
 abline(reg2)
-summary(reg2)
+glue("R squared: {summary(reg2)$r.squared}")
 ```
-adj R^2 = 0.98 explained, correlated positively.
-From the plots it becomes clear that people who have higher cholesterol levels in the before data have a higher absolute decrease of cholesterol after the experiment.
-It becomes easier to see if we remove before bias and only look at the differences (see the right red plot)
+\normalsize
 
-### B
+We look at the correlation between before and after 8 weeks via fitting a linear model to the data. We see that the adjusted R^2 value = 0.98, thus correlated positively. From the plots it becomes clear that people who have higher cholesterol levels in the before data have a higher absolute decrease of cholesterol after the experiment. It becomes easier to see if we remove before bias and only look at the differences (see the right red plot)
+
+### EXERCISE 2B
 #### Pearson Correlation test
 As we have concluded the data to be normally distributed in A, we can conduct a Paired-Sampled T-test.
 In this test, H0: the mean difference between the values of X and Y are 0 H1: this is not the case, the difference is not 0.
 
+\small
 ```{r} 
-#T-test
 t.test(before, after, paired = TRUE)
 ```
-As the p-value is below 0.05 we reject H0 of the T-test and conclude the mean paired differences are not equal to zero.
+\normalsize
 
-Another relevant test is testing for correlation.
+As the p-value is below 0.05 we reject H0 of the T-test and conclude the mean paired differences are not equal to zero. Another relevant test is testing for correlation. We use the Pearson's correlation test as we have considered the data to be normally distributed in subsection A.
 
-We use the Pearson's correlation test as we have considered the data to be normally distributed in subsection A.
-
+\small
 ```{r, fig.margin = FALSE,fig.width=8,fig.height=4,fig.align="center"} 
-#pearson corr. test
 par(mfrow=c(1,2))
 cor.test(before,after)
 ```
-Pearson's returns the correlation value of 0.9908885 herefore we conclude there exists a strong (positive) correlation between the two variables.
+\normalsize
 
-Combining the results of the two tests, we conclude that the low fat margarine diet has an effect.
+Pearson's returns the correlation value of 0.9908885 herefore we conclude there exists a strong (positive) correlation between the two variables.Combining the results of the two tests, we conclude that the low fat margarine diet has an effect.
 
 #### Is a permutation test applicable?
 As we are dealing with numerical outcomes, two conditions per experimental unit and we are interested in possible differences between two outcomes per unit, we can devise a permutation test.
 
-```{r, fig.margin = FALSE,fig.width=6,fig.height=4,fig.align="center"} 
+\small
+```{r, fig.margin = FALSE,fig.width=10,fig.height=4,fig.align="center"} 
 meansamples = function(x,y) {mean(x-y)}
 B=1000; Tstar = numeric(B)
 for (i in 1:B){
@@ -250,42 +266,49 @@ for (i in 1:B){
 myt = meansamples(before,after);
 hist(Tstar)
 ```
+
 ```{r} 
 pl = sum(Tstar<myt)/B
 pr = sum(Tstar>myt)/B
 p = 2*min(pl,pr)
 p
 ```
+\normalsize
+
 As P = 0 we conclude that there is indeed a significant difference between the before and after data.
 
-### C
+### EXERCISE 2C
 As we can assume from the assignment that the sample has an underlying uniform distribution, we can construct the point estimate as followed:
+
+\small
 ```{r} 
-# function that computes variance of uniformly distr. variable
 unif_var = function(a,b){
   return ((1/12)*((b-a)^2))
 }
 
-# E(X) = (a+b)/2 = mean(after)
-# So point estimate of b is 2*E(X)-3
 theta_est = 2*mean(after)-3
 ```
+\normalsize
+
 Now we have the point estimate, we can construct the confidence interval for level 1-alpha. As we know sigma we can compute the CI as follows:
+
+\small
 ```{r}
 #build 95%-CI for theta_est
 n = length(after)
 ci_theta = c(theta_est - qnorm(0.975)*(sqrt(unif_var(3,theta_est))/sqrt(n)), theta_est + qnorm(0.975)*(sqrt(unif_var(3,theta_est))/sqrt(n)))
 ci_theta
-
-
 ```
-This returns us the interval 7.816600, 9.298956.
+\normalsize
+
+This returns us the interval [7.816600, 9.298956].
 we can try to improve the CI via choosing a different estimating statistic?
 
-
-### D
+### EXERCISE 2D
 
 We conduct the bootstrap test (to test H0: samples are sampled from a uniform distribution between 3 and theta)  as followed: 
+
+\small
 ```{r} 
 t = max(after); t
 
@@ -307,32 +330,34 @@ for (theta in 3:12){
   
 }
 res = rbind(vT,vP); res
-
 ```
+\normalsize
 
 As seen in the P-values vP we do not have enough evidence to reject H0 regarding the sampled distribution belonging to a uniform distribution for Theta = 6
 As B is very large, the estimation error is considered to be very small.
 
 Kolmogorov-Smirnov test can be applied as this test tests for H0 that the two underlying distributions are the same. The uniform distributions with the range of different thetas can be distribution 1 and the sampled data can be distribution 2.
 
-### E
+### EXERCISE 2E
 As we are given a small sample size, we conduct a sign test. H0: population median m = m0
+
+\small
 ```{r} 
-## EXERCISE 2E
-# sign test for the median with binomial distr.
 s = sum(after<6); s
 binom.test(s,n,p=0.5,alt="g") 
 ```
-As this results in a p-value of 0.2403 we do not have enough evidence to reject the null-hypothesis.
-
-Next, we check whether the fraction of cholesterol levels lower than 4.5 in after is at most 0.25 (H0).
-
+\normalsize
+As this results in a p-value of 0.2403 we do not have enough evidence to reject the null-hypothesis. Next, we check whether the fraction of cholesterol levels lower than 4.5 in after is at most 0.25 (H0).
+\small
 ```{r}
 s2 = (sum(after<4.5));
 binom.test(s2,n,p=0.25,alt="l")
 ```
-As the returned p-value = 0.3057, we do not have enough evidence to reject H0. 
-## Exercise 3
+\normalsize
+As the returned p-value = 0.3057, we do not have enough evidence to reject H0.
+
+
+## EXERCISE 3
 
 ```{r}
 knitr::opts_chunk$set(echo = TRUE)
@@ -341,6 +366,8 @@ knitr::opts_chunk$set(echo = TRUE)
 **Introductory description:** To investigate the effect of 3 types of diet, 78 persons were divided randomly in 3 groups, the first group following diet 1, second group diet 2 and the third group diet 3. Next to some other characteristics, the weight was measured before diet and after 6 weeks of diet for each person in the study. The collected data is summarized in the data frame diet.txt with the following columns: person – participant number, gender – gender (1 = male, 0 = female), age – age (years), height – height (cm), preweight – weight before the diet (kg), diet – the type of diet followed, weight6weeks – weight after 6 weeks of diet (kg). Compute and add to the data frame the variable weight.lost expressing the lost weight, to be used as response variable.
 
 Let's start by loading the data and creating a new column containing `weight.lost`, the difference between starting weight and weight after six weeks. If participants actually lost weight, this value will be negative. If they gained weight, this value will be positive.
+
+\small
 ```{r}
 data = read.table('../data/diet.txt', header=TRUE)
 
@@ -351,75 +378,131 @@ pre = data$preweight
 post = data$weight6weeks
 age = data$age
 ```
+\normalsize
 
-### A
-#### Make an informative graphical summary of the data relevant for study of the effect of diet on the wight loss. 
+### EXERCISE 3A
+First let's make an informative graphical summary of the weight lost per diet
 
-lorem ipsum dolor sit amet
+```{r, fig.height=5}
+par(mfrow = c(2,3))
+boxplot(data$weight.lost[data$diet == 1], main="Diet 1", ylab="Weight lost")
+boxplot(data$weight.lost[data$diet == 2], main="Diet 2", ylab="Weight lost")
+boxplot(data$weight.lost[data$diet == 3], main="Diet 3", ylab="Weight lost")
 
-####By using only the columns preweight and weight6weeks, test the claim that the diet affects the weight loss. Check the assumptions of the test applied.
+hist(data$weight.lost[data$diet == 1], main="Diet 1", ylab="Frequency", xlab="Weight lost")
+hist(data$weight.lost[data$diet == 2], main="Diet 1", ylab="Frequency", xlab="Weight lost")
+hist(data$weight.lost[data$diet == 3], main="Diet 1", ylab="Frequency", xlab="Weight lost")
+```
 
-To test this claim, we use a paired t-test. Normality of data is crucial for a correct t-test. We test this assumption by creating a QQplot and performing a shapiro-wilk test. As this is a two-sample t-test, we check normality of the **differences**. If the differences follow a normal distribution, we expect the qqplot to show a linear relation and we expect the null hypothesis of normality to not be rejected by the Shapiro-Wilk test.
+To test the claim that diet affect weight loss, we use a paired t-test. Normality of data is crucial for a correct t-test. We test this assumption by creating a QQplot and performing a shapiro-wilk test. As this is a two-sample t-test, we check normality of the **differences**. If the differences follow a normal distribution, we expect the qqplot to show a linear relation and we expect the null hypothesis of normality to not be rejected by the Shapiro-Wilk test.
 
-```{r}
+\small
+```{r, fig.height=4, fig.width=6}
 qqnorm(weight.lost); qqline(weight.lost)
 shapiro.test(weight.lost)
 ```
+\normalsize
 The results of the plot and the test are in line with our expectations, there is no reason to expect that the differences are not taken from a normal population. We can commence with a paired two-sample t-test.
 
+\small
 ```{r}
 t.test(pre,post,paired=TRUE)
 ```
-The resulting very small p-value confirms the claim that the diet affects weight loss.
+\normalsize
+The resulting very small p value confirms the claim that the diet affects weight loss.
 
-### B
-#### Apply one-way ANOVA to test whether type of diet has an effect on the lost weight. Do all three types diets lead to weight loss? Which diet was the best for losing weight?
-
-First we have to factorize the diet column of the data, and strip all non-interesting columns from the dataframe. We remain with a dataframe containing diet type and weight lost as columns, and do a small check to see if the diet values are now factors instead of a numeric value.
-
+### EXERCISE 3B
+To test whether the type of diet has an effect on the lost weight, we will perform a one-way ANOVA. First we have to factorize the diet column of the data, and strip all non-interesting columns from the dataframe. We remain with a dataframe containing diet type and weight lost as columns.
+\small
 ```{r}
 data$diet = as.factor(data$diet)
-df = data[c("weight.lost","diet")]; df
-is.factor(df$diet); is.numeric(df$diet)
+df = data[c("weight.lost","diet")];
 ```
-
+\normalsize
 Next we can perform a one-way ANOVA. We print a summary of the results, and the resulting confidence intervals
-
+\small
 ```{r}
 weightlostaov = lm(weight.lost~diet,data=df)
 anova(weightlostaov)
 summary(weightlostaov)
 confint(weightlostaov)
 ```
-
+\normalsize
 Only diet 1 and 3 seem to have a statistically significant effect on the weight lost. Diet one looks to be the best for weight loss, with the 95% CI being [2.326, 4.274] (kilograms lost). The p value is also by far the lowest for diet 1.
 
 We still have to show that the normality assumption is not violated, this is done by plotting the residuals. They should look normal. Furthermore, plotted against the residuals, the fitted values should show no pattern
 
-```{r}
+\small
+```{r, fig.height=3.5}
 par(mfrow=c(1,2)); qqnorm(residuals(weightlostaov))
 plot(fitted(weightlostaov),residuals(weightlostaov))
 ```
+\normalsize
 
 Judging from these plots, there is no reason to suspect the normality assumption has been violated.
 
-#### Can the Kruskal-Wallis test be applied for this situation?
+The Kruskal-Wallis test could also be used! However, we have seen that residuals are normally distributed, so there would be no need to use the Kruskal-Wallis test. Let's compare the kruskal-wallis test results with those of one-way anova for curiosity's sake.
 
-It can be used! However, we have seen that residuals are normally distributed, so there would be no need to use the Kruskal-Wallis test. Let's compare the kruskal-wallis test results with those of one-way anova for curiosity's sake.
-
+\small
 ```{r}
 kruskal.test(weight.lost, df$diet)
 ```
-### C
-#### Use two-way ANOVA to investigate effect of the diet and gender (and possible interaction) on the lost weight.
+\normalsize
+### EXERCISE 3C
+To investigate the effedct of the diet and gender (and possible interaction) on the lost weight we perform a two-way ANOVA. First, create a new dataframe consisting of gender, diet, and weight lost. Make sure gender and diet are factors and nog numeric values.
 
-### E
-#### Which of the two approaches, the one from b) or the one from c), do you prefer? Why? For the preferred model, predict the lost weight for all three types of diet." instead of "Which of the two approaches, the one from b) or the one from d), do you prefer? Why? For the preferred model, predict the lost weight for all three types of diet for an average person.
+\small
+```{r}
+data$gender = as.factor(data$gender)
+df2 = data[c("weight.lost","diet","gender")]
+```
+\normalsize
 
+To visually show wheter there is an interaciton effect, an interaction plot can be made. If curves run parralel, there is probably no interaction. Otherwise, interaction shows up as nonparallel curves
 
-## Exercise 4
-## EXERCISE 4A
+\small
+```{r, fig.height=5, fig.width=12}
+gender = data$gender
+diet = data$diet
+par(mfrow=c(1,2))
+interaction.plot(gender,diet,weight.lost)
+interaction.plot(diet,gender,weight.lost)
+```
+\normalsize
+
+From the results of these plots, we can expect an interaction effect between gender and diet. Now it's time to perform the two-way ANOVA to statistically inspect interaction beteen gender and diet on weight loss. Remeber: when performing a two-way anova on the interaction of two factors, one cannot make conclusions based on
+
+\small
+```{r}
+twoway = lm(weight.lost~diet*gender,data=df2)
+anova(twoway)
+summary(twoway)
+```
+\normalsize
+
+With p = 0.048 and alpha = 0.05 for the interaction diet*gender, the interaction variable is significant. As for the main effects: Diet has a significant effect on weight loss: p = 0.005 and gender does not: p = 0.85.
+
+In order to check the assumptions for normality and equal variances, we still need to plot the residuals.
+\small
+```{r, fig.height=4, fig.width=10}
+par(mfrow=c(1,2)); qqnorm(residuals(twoway));
+plot(fitted(twoway),residuals(twoway))
+```
+\normalsize
+The qqplot seems fairly linear, and there is no pattern in the residuals plotted against the fitted data. Therefore there is no reason to suspect violation of the normality and equailyt of variances assumptions.
+
+### EXERCISE 3E
+Personally, we like the approach from b best, because it tests for an interaction effect. By my understanding, if an interaction effect between two factors is present, the results from just analyzing those factors individually, will be less reliable. This is because we know for certain that another factor had an influence on the relation between the first factor and the outcome variable. Because we already got rid of first differences (resulting in variable 'weight.lost'), we can interpret the ANOVA estimated parameters as without intercept
+
+Hence, the expected weight loss can be extracted from the summary of the two-factor ANOVA. For an average person in kilograms based on each three diets is: diet 1: 3.05, diet 2: -0.44 (no significant weight loss), and diet three: 2.83.
+
+(DOEN WE DIT WEL GOED??)
+
+## EXERCISE 4
+
+### EXERCISE 4A
 To randomize the distribution of soil additives, first we replace all values in the data frame for zeroes.
+\small
 ```{r}
 my.data = npk;
 my.data$yield = NULL
@@ -428,7 +511,10 @@ my.data$N = my.vec
 my.data$P = my.vec
 my.data$K = my.vec
 ```
+\normalsize
 Then, we randomly sample two integers per additive from a discrete uniform distribution, which correspond to given plots in the data frame where the additives will be inserted.
+
+\small
 ```{r}
 for (i in 1:6) {
   nitr = sample.int(4,2); nitr
@@ -443,22 +529,21 @@ for (i in 1:6) {
   my.data$K[k] = 1;
   
 }
-# randomized soil additives per block
-my.data
 ```
-This will result in 2 of each soil additive per block of 4 plots.
+\normalsize
 
-##  EXERCISE 4B
+This will result in 2 of each soil additive per block of 4 plots. Due to space constraints, the resulting random additive distribution will not be printed, but the reader is free to run the code to check for themselves.
 
-```{r}
+###  EXERCISE 4B
+We want to understand the dependence of average yield on treatment factor 'nitrogen'. We know the blocks to be balanced within each block and different in the sense that it is not necessarily the case that every plot receiving treatment is the same plot in each block. Taking the factor block into account can lead to removing variation and thus drawing more precise conclusions becomes possible.
+\small
+```{r, fig.height=5, fig.width=12}
 nitr = numeric(6)
 nonitr = numeric(6)
 for (i in 1:6){
   
   for (j in 0:1){
-    cat("block", i, "N", j)
     mean = mean(npk[npk$block == i & npk$N == j,]$yield) 
-    print(mean)
     
     if (j == 0){
       nonitr[i] = mean
@@ -466,68 +551,58 @@ for (i in 1:6){
     else{
       nitr[i] = mean
     }
-    
-    
   }
 }
-nitr
-nonitr
 blocks = seq(1:6)
 test = rbind(nonitr,nitr)
 barplot(test,
         beside=T,
-        xlab = "No-nitrogen vs Nitrogen",
+        xlab = list("No-nitrogen vs Nitrogen", cex=1.3),
         ylab = "Yield",
-        col = c("black","darkred")
+        col = c("lightblue","lightgreen")
 )
-legend("topleft", c("no-nitrogen", "nitrogen"), fill = c("black","red"))
+legend("topright", c("no-nitrogen", "nitrogen"), fill = c("lightblue","lightgreen"))
 ```
-We want to understand the dependence of average yield on treatment factor 'nitrogen'. We know the blocks to be balanced within each block and different in the sense that it is not necessarily the case that every plot receiving treatment is the same plot in each block. Taking the factor block into account can lead to removing variation and thus drawing more precise conclusions becomes possible.
-## EXERCISE 4C
+\normalsize
+### EXERCISE 4C
 We conduct the two-way ANOVA with two factors 'block' and 'N' and response variable 'yield' where we test the three hypotheses:
 1. There is no main effect of factor 'block'. 
 2. There is no main effect in factor 'N' and 
 3. There is no interaction between the two factors 'N' and 'block' as followed:
-```{r}
+\small
+```{r, fig.height=5, fig.width=10}
 npk$block = as.factor(npk$block)
 npk$N = as.factor(npk$N)
 df = npk[c("yield","block","N")]
-# two way anova
+
 twoway = lm(yield~block*N,data=df)
 anova(twoway)
-# not sign. interaction parameter, also interaction plots as evidence for gamma_ij = 0 (parallel).
+
+par(mfrow = c(1,2))
 interaction.plot(npk$N,npk$block,npk$yield); interaction.plot(npk$block,npk$N,npk$yield)
 ```
-
+\normalsize
 As seen in the results, we do not have enough evidence to reject hypothesis 3. as we did not obtain a P-value lower than the significance level. Therefore we do not have enough evidence to conclude there to be significant interaction between the two factors and we should use the additive model to see about the interaction effect.
-```{r}
-# -> compute anova on additive model
+\small
+```{r, fig.height=5, fig.width=10}
 twoway2  = lm(yield~block+N,data=df)
-
-# we obtain sign. values for block and N.
 anova(twoway2)
 summary(twoway2)
-confint(twoway2)
 
-# seems normally distributed residuals
 par(mfrow=c(1,2)); qqnorm(residuals(twoway2))
 plot(fitted(twoway2),residuals(twoway2))
 ```
+\normalsize
+Lastly we check the QQ-plot and the residuals plotted against the fitted values of the linear regression model. Seeing the QQ-plot we can not directly assume normality, however from the second plot we do not see a clear pattern, thus we still assume normality.
 From the additive model we see a main-effect in factors, therefore we reject hypotheses 1. and 2. and we have enough evidence to conclude that there exists a main effect for both factors, but no interaction between the factors.
-It was sensible to include the factor 'block', as we could see that there exists a main effect in 
+It was not sensible to include block as we are dealing with a balanced incomplete block design and we are not primarily interested in the effect of the difference blocks.
+Friedman can not be applied as we do not have every treatment level available at every unit, which is a prerquisite for Friedman.
 
-# was it sensible to also include 'block' as factor in this model? --> comment
-# yes, because significant (?)
-# or no, because it changes nothing (except for location?) -> as N(PK) is distr. differently across every block and 
-# there is no way of describing the difference of how this distr. is affecting the yield
+### EXERCISE 4D
 
-
-# no friedman test! we need 24 blocks for this, to differentiate. see slide 37 of lec. 5 for explanation of this
-#friedman.test(npk$yield,npk$N,npk$block)
-```
-## EXERCISE 4D
+To test for the presence of main effects we investigate the interaction between each additive and the factor block. We conduct three ANOVA tests. All three tests give no indication of significant interaction between the variables and factor block (H3). Thus we look at the additive model and find main effects (reject hypotheses) in factors N, K and block.
+\small
 ```{r}
-npk
 pairwise_N = lm(yield ~ N*block + P + K,data=npk)
 pairwise_P = lm(yield ~ P*block + N + K,data=npk)
 pairwise_K = lm(yield ~ K*block + P + N,data=npk)
@@ -539,21 +614,15 @@ anova(pairwise_K)
 additive = lm(yield ~ N+P+K+block, data=npk)
 anova(additive)
 ```
-
-#### make 3 models -> two way anova
-##### lm(yield ~ N*block + P + K), etc...
-##### favorite model is without pairwise interaction term (so no block), just additive
+\normalsize
 
 ### EXERCISE 4E
-To test if nitrogen has an effect on 
+We apply a mixed effects model. The mixed effects model on its own is not informative enough as it does not generate p-values. Therefore we refit the model without the factor of interest (namely N) and then apply ANOVA with 2 arguments. We conclude that factor N has a significant impact on yield. If we compare this to 4)C, we see that this corresponds to the results from 4)C., although the P-value in this case is lower than in 4c, implying more statistical significance.
+\small
 ```{r}
 library(lme4)
 mer1 = lmer(yield ~ N+P+K+(1|block),data=npk,REML=FALSE)
 mer2 = lmer(yield ~ P+K+(1|block),data=npk,REML=FALSE)
 anova(mer1,mer2)
 ```
-# we see that anova of two models results in sign. p value. s.t. N has a significant impact on the yield.
-# compare to 4C!
-
-
-
+\normalsize
