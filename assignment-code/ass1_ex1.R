@@ -63,29 +63,22 @@ pttest<psign
 psign_val = numeric(B)
 pttest_val = numeric(B)
 
-B = 50
-stepsize = 7
-start = 2500
-end = 3200
+B = 1000
 
-seq1 = seq(start,end,length.out=(stepsize)); 
-frac = numeric(stepsize)
-count = 1
-for (mu_1 in seq1){
-  for (i in 1:B) {
-    x1 = rnorm(n,mean=mu_1,sd=sd)
+
+for (i in 1:B) {
+    x1 = rnorm(n,mean=2800,sd=sd)
     pttest_val[i]=t.test(x1,mu=2800,alt="g")[[3]]; 
     psign_val[i]=binom.test(sum(x1>2800),n,p=0.5)[[3]]; 
   }
-  fracsign = sum(psign_val<0.05)/B
-  fracttest = sum(pttest_val<0.05)/B
-  print(fracsign)
-  print(fracttest)
-  frac[count] = fracsign/fracttest
-  count + 1
-}
-frac
+fracsign = sum(psign_val<0.05)/B; fracsign
+fracttest = sum(pttest_val<0.05)/B; fracttest
 
+
+## @plotto -> test at 'some' mu>2800. Here we test at mu = 2800 (we generate under H1, mu = 2800.) We can already
+## see that frac. of rejections is larger for t tests (0.051 > 0.046). If we generate for mu > 2800, say, mu = 2900
+## (@plotto verander dan de mean=2800 in line 70, bij x1 = rnorm(....)), then the frac. of rejections is even larger
+## than for the sign test. From this we can conclude the power of the t test is larger than for the sign test.
 
 
 # 

@@ -3,6 +3,7 @@ title: "Assignment 2"
 author: "Gijs Smeets, Daan Wijnhorst, Moos Middelkoop group 35"
 date: "February 2023"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 fontsize: 11pt
@@ -127,12 +128,12 @@ ci_theta
 
 ```
 This returns us the interval 7.816600, 9.298956.
-we can try to improve the CI via choosing a different estimating statistic from the population (the median for example) and look at the difference between the returned interval and the new interval this looks as follows:
+we can try to improve the CI via choosing a different estimating statistic?
 
 
 ### D
 
-#bootstrap test
+We conduct the bootstrap test (to test H0: samples are sampled from a uniform distribution between 3 and theta)  as followed: 
 ```{r} 
 t = max(after); t
 
@@ -156,16 +157,26 @@ for (theta in 3:12){
 res = rbind(vT,vP); res
 
 ```
-Kolmogorov-Smirnov test can be applied as this test tests for H0 that the two undferlying distributions are the same. The uniform distribution can be distribution 1 and the sampled data can be distribution 2.
+
+As seen in the P-values vP we do not have enough evidence to reject H0 regarding the sampled distribution belonging to a uniform distribution for Theta = 6
+As B is very large, the estimation error is considered to be very small.
+
+Kolmogorov-Smirnov test can be applied as this test tests for H0 that the two underlying distributions are the same. The uniform distributions with the range of different thetas can be distribution 1 and the sampled data can be distribution 2.
 
 ### E
+As we are given a small sample size, we conduct a sign test. H0: population median m = m0
 ```{r} 
 ## EXERCISE 2E
 # sign test for the median with binomial distr.
 s = sum(after<6); s
 binom.test(s,n,p=0.5,alt="g") 
+```
+As this results in a p-value of 0.2403 we do not have enough evidence to reject the null-hypothesis.
 
-# fraction of cholesterol levels lower than 4.5 in after is at most 0.25
-s2 = (sum(after<4.5))
+Next, we check whether the fraction of cholesterol levels lower than 4.5 in after is at most 0.25 (H0).
+
+```{r}
+s2 = (sum(after<4.5));
 binom.test(s2,n,p=0.25,alt="l")
 ```
+As the returned p-value = 0.3057, we do not have enough evidence to reject H0. 

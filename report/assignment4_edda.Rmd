@@ -1,0 +1,149 @@
+---
+title: "Assignment 1"
+author: "Gijs Smeets, Daan Wijnhorst, Moos Middelkoop, group 35"
+date: "February 2023"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+fontsize: 11pt
+highlight: tango
+---
+## EXERCISE 4A
+To randomize the distribution of soil additives, first we replace all values in the data frame for zeroes.
+```{r}
+my.data = npk;
+my.data$yield = NULL
+my.vec = c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+my.data$N = my.vec
+my.data$P = my.vec
+my.data$K = my.vec
+```
+Then, we randomly sample two integers per additive from a discrete uniform distribution, which correspond to given plots in the data frame where the additives will be inserted.
+```{r}
+for (i in 1:6) {
+  nitr = sample.int(4,2); nitr
+  phoss = sample.int(4,2); phoss 
+  k = sample.int(4,2); k
+  
+  nitr = nitr + (4 * (i-1)); nitr
+  phoss = phoss + (4 * (i-1)); phoss
+  k = k + (4 * (i-1));k
+  my.data$N[nitr] = 1; my.data$N[nitr]
+  my.data$P[phoss] = 1;
+  my.data$K[k] = 1;
+  
+}
+# randomized soil additives per block
+my.data
+```
+This will result in 2 of each soil additive per block of 4 plots.
+
+##  EXERCISE 4B
+
+```{r}
+nitr = numeric(6)
+nonitr = numeric(6)
+for (i in 1:6){
+  
+  for (j in 0:1){
+    cat("block", i, "N", j)
+    mean = mean(npk[npk$block == i & npk$N == j,]$yield) 
+    print(mean)
+    
+    if (j == 0){
+      nonitr[i] = mean
+    }
+    else{
+      nitr[i] = mean
+    }
+    
+    
+  }
+}
+nitr
+nonitr
+blocks = seq(1:6)
+test = rbind(nonitr,nitr)
+barplot(test,
+        beside=T,
+        xlab = "No-nitrogen vs Nitrogen",
+        ylab = "Yield",
+        col = c("black","darkred")
+)
+legend("topleft", c("no-nitrogen", "nitrogen"), fill = c("black","red"))
+```
+We want to understand the dependence of average yield on treatment factor 'nitrogen'. We know the blocks to be balanced within each block and different in the sense that it is not necessarily the case that every plot receiving treatment is the same plot in each block. Taking the factor block into account can lead to removing variation and thus drawing more precise conclusions becomes possible.
+## EXERCISE 4C
+We conduct the two-way ANOVA with two factors 'block' and 'N' and response variable 'yield' where we test the three hypotheses:
+1. There is no main effect of factor 'block'. 
+2. There is no main effect in factor 'N' and 
+3. There is no interaction between the two factors 'N' and 'block' as followed:
+```{r}
+npk$block = as.factor(npk$block)
+npk$N = as.factor(npk$N)
+df = npk[c("yield","block","N")]
+# two way anova
+twoway = lm(yield~block*N,data=df)
+anova(twoway)
+# not sign. interaction parameter, also interaction plots as evidence for gamma_ij = 0 (parallel).
+interaction.plot(npk$N,npk$block,npk$yield); interaction.plot(npk$block,npk$N,npk$yield)
+```
+
+As seen in the results, we do not have enough evidence to reject hypothesis 3. as we did not obtain a P-value lower than the significance level. Therefore we do not have enough evidence to conclude there to be significant interaction between the two factors and we should use the additive model to see about the interaction effect.
+```{r}
+# -> compute anova on additive model
+twoway2  = lm(yield~block+N,data=df)
+
+# we obtain sign. values for block and N.
+anova(twoway2)
+summary(twoway2)
+confint(twoway2)
+
+# seems normally distributed residuals
+par(mfrow=c(1,2)); qqnorm(residuals(twoway2))
+plot(fitted(twoway2),residuals(twoway2))
+```
+From the additive model we see a main-effect in factor  factors considered, therefore we reject hypotheses 1. and 2. and we have enough evidence to conclude that there exists a main effect for both factors, but no interaction between the factors.
+It was sensible to include the factor 'block', as we could see that there exists a main effect in 
+
+# was it sensible to also include 'block' as factor in this model? --> comment
+# yes, because significant (?)
+# or no, because it changes nothing (except for location?) -> as N(PK) is distr. differently across every block and 
+# there is no way of describing the difference of how this distr. is affecting the yield
+
+
+# no friedman test! we need 24 blocks for this, to differentiate. see slide 37 of lec. 5 for explanation of this
+#friedman.test(npk$yield,npk$N,npk$block)
+```
+## EXERCISE 4D
+```{r}
+npk
+pairwise_N = lm(yield ~ N*block + P + K,data=npk)
+pairwise_P = lm(yield ~ P*block + N + K,data=npk)
+pairwise_K = lm(yield ~ K*block + P + N,data=npk)
+
+anova(pairwise_N)
+anova(pairwise_P)
+anova(pairwise_K)
+
+additive = lm(yield ~ N+P+K+block, data=npk)
+anova(additive)
+```
+
+#### make 3 models -> two way anova
+##### lm(yield ~ N*block + P + K), etc...
+##### favorite model is without pairwise interaction term (so no block), just additive
+
+### EXERCISE 4E
+To test if nitrogen has an effect on 
+```{r}
+library(lme4)
+mer1 = lmer(yield ~ N+P+K+(1|block),data=npk,REML=FALSE)
+mer2 = lmer(yield ~ P+K+(1|block),data=npk,REML=FALSE)
+anova(mer1,mer2)
+```
+# we see that anova of two models results in sign. p value. s.t. N has a significant impact on the yield.
+# compare to 4C!
+
+
