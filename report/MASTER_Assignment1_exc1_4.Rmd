@@ -23,7 +23,6 @@ data = read.table('../data/birthweight.txt',header=TRUE)
 x = data$birthweight
 ```
 
-
 #### A
 ##### Check normality of the data. Assuming normality (irrespective of your conclusion about normality), construct a bounded 96%-CI for mu. Evaluate the sample size needed to provide that the length of the 96%-CI is at most 100. Compute a bootstrap 96%-CI for mu and compare it to the above CI.
 
@@ -335,9 +334,8 @@ binom.test(s2,n,p=0.25,alt="l")
 As the returned p-value = 0.3057, we do not have enough evidence to reject H0. 
 ## Exercise 3
 
-```{r setup, include=FALSE}
+```{r}
 knitr::opts_chunk$set(echo = TRUE)
-library(glue)
 ```
 
 **Introductory description:** To investigate the effect of 3 types of diet, 78 persons were divided randomly in 3 groups, the first group following diet 1, second group diet 2 and the third group diet 3. Next to some other characteristics, the weight was measured before diet and after 6 weeks of diet for each person in the study. The collected data is summarized in the data frame diet.txt with the following columns: person – participant number, gender – gender (1 = male, 0 = female), age – age (years), height – height (cm), preweight – weight before the diet (kg), diet – the type of diet followed, weight6weeks – weight after 6 weeks of diet (kg). Compute and add to the data frame the variable weight.lost expressing the lost weight, to be used as response variable.
