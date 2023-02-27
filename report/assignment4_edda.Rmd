@@ -3,6 +3,7 @@ title: "Assignment 1"
 author: "Gijs Smeets, Daan Wijnhorst, Moos Middelkoop, group 35"
 date: "February 2023"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 fontsize: 11pt
@@ -103,7 +104,7 @@ confint(twoway2)
 par(mfrow=c(1,2)); qqnorm(residuals(twoway2))
 plot(fitted(twoway2),residuals(twoway2))
 ```
-From the additive model we see a main-effect in both factors considered, therefore we reject hypotheses 1. and 2. and we have enough evidence to conclude that there exists a main effect for both factors, but no interaction between the factors.
+From the additive model we see a main-effect in factor  factors considered, therefore we reject hypotheses 1. and 2. and we have enough evidence to conclude that there exists a main effect for both factors, but no interaction between the factors.
 It was sensible to include the factor 'block', as we could see that there exists a main effect in 
 
 # was it sensible to also include 'block' as factor in this model? --> comment
